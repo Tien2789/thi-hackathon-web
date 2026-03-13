@@ -9,5 +9,5 @@ public interface UserService {
     List<UserDTO> getAllUsers();
     List<String> getAllRoleNames();
     UserDTO createUser(CreateUserRequest request);
-    void deleteUser(Integer id);
+    void deleteUser(Long id);
 }

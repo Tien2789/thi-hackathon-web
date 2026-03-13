@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO {
-    private Long id;
+    private Integer id;
     private String username;
     private RoleDTO role;
     private WarehouseDTO warehouse;
@@ -24,7 +24,7 @@ public class UserDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class WarehouseDTO {
-        private Long id;
+        private Integer id;
         private String name;
     }
 }

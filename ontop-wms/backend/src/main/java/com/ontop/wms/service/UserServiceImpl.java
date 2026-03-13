@@ -81,10 +81,8 @@ public class UserServiceImpl implements UserService {
 
     private UserDTO convertToDto(User user) {
         UserDTO.RoleDTO roleDTO = user.getRole() != null ? new UserDTO.RoleDTO(user.getRole().getRoleName()) : null;
-        UserDTO.WarehouseDTO warehouseDTO = user.getWarehouse() != null ? new UserDTO.WarehouseDTO(user.getWarehouse().getId().longValue(), user.getWarehouse().getName()) : null;
         UserDTO.WarehouseDTO warehouseDTO = user.getWarehouse() != null ? new UserDTO.WarehouseDTO(user.getWarehouse().getId(), user.getWarehouse().getName()) : null;
         return new UserDTO(
-                user.getId().longValue(),
                 user.getId(),
                 user.getUsername(),
                 roleDTO,
