@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ontop.wms.entity.Product;
 import com.ontop.wms.entity.Warehouse;
 import com.ontop.wms.repository.WarehouseRepository;
+import com.ontop.wms.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WarehouseController {
     private final WarehouseRepository warehouseRepository;
-
-    private final com.ontop.wms.service.AuthService authService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<List<Warehouse>> getAllWarehouses(org.springframework.security.core.Authentication authentication) {
-        com.ontop.wms.entity.User currentUser = authService.getCurrentUser(authentication.getName());
+        com.ontop.wms.entity.User currentUser = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                
         com.ontop.wms.entity.Role userRole = currentUser.getRole();
         
         if (userRole == null) {
@@ -58,7 +60,7 @@ public class WarehouseController {
                 .orElseThrow(() -> new EntityNotFoundException("Warehouse not found with id: " + id));
 
         warehouse.setName(warehouseDetails.getName());
-        warehouse.setAddress(warehouseDetails.getAddress());
+        warehouse.setLocation(warehouseDetails.getLocation());
         return ResponseEntity.ok(warehouseRepository.save(warehouse));
     }
 

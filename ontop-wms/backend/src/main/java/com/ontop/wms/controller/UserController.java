@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService; // Bạn cần tạo service này
+    private final UserService userService;
 
     // Chỉ ADMIN mới được lấy danh sách tất cả người dùng
     @GetMapping
@@ -40,7 +40,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

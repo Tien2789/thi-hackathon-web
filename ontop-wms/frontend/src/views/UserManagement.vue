@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { User, Plus, Search, Delete, Edit, Shield } from '@element-plus/icons-vue'
+import { User, Plus, Search, Delete, Edit, Shield, Connection } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
 
