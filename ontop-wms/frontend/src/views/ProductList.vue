@@ -1,8 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import {
-  Search, Plus, Filter, Download,
-  Edit, Delete, MoreFilled, View, Box
+  Search, Plus, Edit, Delete, MoreFilled, View, Box
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
@@ -109,9 +108,12 @@ const handleDelete = (id) => {
     type: 'warning'
   }).then(async () => {
     try {
-      ElMessage.info('Chức năng xóa sẽ được cập nhật sớm')
+      await api.delete(`/products/${id}`)
+      ElMessage.success('Xóa sản phẩm thành công')
+      fetchProducts()
     } catch (error) {
-      ElMessage.error('Lỗi khi xóa sản phẩm')
+      console.error('Lỗi xóa sản phẩm:', error)
+      ElMessage.error(error.response?.data?.error || 'Lỗi khi xóa sản phẩm')
     }
   })
 }
@@ -135,7 +137,7 @@ onMounted(() => {
         </nav>
       </div>
       <div class="d-flex gap-2">
-        <el-button :icon="Download">Xuất dữ liệu</el-button>
+        <el-button>Xuất dữ liệu</el-button>
         <el-button type="primary" :icon="Plus" @click="openAddDialog">Thêm sản phẩm mới</el-button>
       </div>
     </div>
@@ -160,7 +162,7 @@ onMounted(() => {
             </el-select>
           </div>
           <div class="col-12 col-md-3 text-end">
-            <el-button :icon="Filter" type="info" plain @click="fetchProducts">Tải lại</el-button>
+            <el-button :icon="Search" type="info" plain @click="fetchProducts">Tải lại</el-button>
           </div>
         </div>
       </div>
@@ -228,8 +230,7 @@ onMounted(() => {
                   product.currentStock > product.minStock ? 'bg-success bg-opacity-10 text-success' :
                     (product.currentStock > 0 ? 'bg-warning bg-opacity-10 text-warning' : 'bg-danger bg-opacity-10 text-danger')
                 ]">
-                  {{ product.currentStock > product.minStock ? 'Ổn định' : (product.currentStock > 0 ? 'Sắp hết' : 'Hết
-                  hàng') }}
+                  {{ product.currentStock > product.minStock ? 'Ổn định' : (product.currentStock > 0 ? 'Sắp hết' : 'Hết hàng') }}
                 </span>
               </td>
               <td class="text-end pe-4">
@@ -350,7 +351,7 @@ onMounted(() => {
 }
 
 .breadcrumb-item+.breadcrumb-item::before {
-  content: "›";
+  content: "\203A";
   font-size: 18px;
   line-height: 1;
   vertical-align: middle;

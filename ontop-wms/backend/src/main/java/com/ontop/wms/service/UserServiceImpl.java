@@ -1,5 +1,14 @@
 package com.ontop.wms.service;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ontop.wms.dto.CreateUserRequest;
 import com.ontop.wms.dto.UserDTO;
 import com.ontop.wms.entity.Role;
@@ -8,14 +17,8 @@ import com.ontop.wms.entity.Warehouse;
 import com.ontop.wms.repository.RoleRepository;
 import com.ontop.wms.repository.UserRepository;
 import com.ontop.wms.repository.WarehouseRepository;
-import com.ontop.wms.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -70,11 +73,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser(Integer  id) {
-        User user = userRepository.findById(id)
+    public void deleteUser(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+        // Lấy thông tin người dùng đang thực hiện hành động
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User userToDelete = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
-        if ("admin".equals(user.getUsername())) {
-            throw new IllegalArgumentException("Cannot delete admin user");
+
+        // Ngăn người dùng tự xóa tài khoản của chính mình
+        if (Objects.equals(userToDelete.getUsername(), currentUsername)) {
+            throw new IllegalArgumentException("You cannot delete your own account.");
         }
         userRepository.deleteById(id);
     }

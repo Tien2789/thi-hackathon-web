@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, markRaw } from 'vue'
 import {
   Timer, ArrowUp, ArrowDown, TrendCharts,
   Box, Van, Warning, Connection
@@ -14,19 +14,24 @@ const value = ref('30d')
 const fetchDashboardData = async () => {
   try {
     loading.value = true
+    const userRole = localStorage.getItem('userRole')
     // Fetch stats
-    const statsRes = await api.get('/reports/dashboard-stats')
-    // Transform icons if they come as strings from backend
-    stats.value = statsRes.data.map(s => ({
-      ...s,
-      icon: s.title.includes('Sản phẩm') ? Box :
-        s.title.includes('Kho') ? Connection :
-          s.title.includes('Nhập') ? Van : Warning
-    }))
+    if (userRole === 'ADMIN') {
+      const statsRes = await api.get('/reports/dashboard-stats')
+      // Transform icons if they come as strings from backend
+      stats.value = statsRes.data.map(s => ({
+        ...s,
+        icon: markRaw(s.title.includes('Sản phẩm') ? Box :
+          s.title.includes('Kho') ? Connection :
+            s.title.includes('Nhập') ? Van : Warning)
+      }))
+    }
 
     // Fetch activities
-    const activityRes = await api.get('/reports/recent-activities')
-    recentActivities.value = activityRes.data
+    if (['ADMIN', 'MANAGER'].includes(userRole)) {
+      const activityRes = await api.get('/reports/recent-activities')
+      recentActivities.value = activityRes.data
+    }
   } catch (error) {
     console.error('Lỗi tải Dashboard:', error)
   } finally {

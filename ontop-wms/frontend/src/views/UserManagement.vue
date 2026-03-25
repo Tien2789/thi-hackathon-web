@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { User, Plus, Search, Delete, Edit, Shield, Connection } from '@element-plus/icons-vue'
+import { User, Plus, Search, Delete, Edit, Lock, Connection } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
 
@@ -11,12 +11,24 @@ const dialogVisible = ref(false)
 
 const warehouses = ref([])
 
+const handleAuthError = (error) => {
+    if (error.response && error.response.status === 403) {
+        ElMessage.error('Phiên đăng nhập hết hạn hoặc không đủ quyền.')
+        localStorage.clear()
+        window.location.href = '/login'
+    }
+}
+
 const fetchWarehouses = async () => {
     try {
         const response = await api.get('/warehouses')
         warehouses.value = response.data
     } catch (error) {
-        console.error('Lỗi tải danh sách kho')
+        if (error.response?.status === 403) {
+            handleAuthError(error)
+        } else {
+            console.error('Lỗi tải danh sách kho', error)
+        }
     }
 }
 
@@ -33,7 +45,12 @@ const fetchUsers = async () => {
         const response = await api.get('/users')
         users.value = response.data
     } catch (error) {
-        ElMessage.error('Không thể tải danh sách nhân sự')
+        if (error.response?.status === 403) {
+            handleAuthError(error)
+        } else {
+            console.error('Lỗi tải danh sách user:', error)
+            ElMessage.error('Không thể tải danh sách nhân sự')
+        }
     } finally {
         loading.value = false
     }
@@ -44,7 +61,11 @@ const fetchRoles = async () => {
         const response = await api.get('/users/roles')
         roles.value = response.data
     } catch (error) {
-        console.error('Lỗi tải danh sách vai trò')
+        if (error.response?.status === 403) {
+            handleAuthError(error)
+        } else {
+            console.error('Lỗi tải danh sách vai trò', error)
+        }
     }
 }
 
@@ -54,9 +75,14 @@ const handleAddUser = async () => {
         ElMessage.success('Thêm nhân sự mới thành công')
         dialogVisible.value = false
         fetchUsers()
-        form.value = { username: '', password: '', roleName: '' }
+        form.value = { username: '', password: '', roleName: '', warehouseId: null }
     } catch (error) {
-        ElMessage.error('Lỗi khi tạo người dùng')
+        if (error.response?.status === 403) {
+            handleAuthError(error)
+        } else {
+            console.error(error)
+            ElMessage.error(error.response?.data?.message || 'Lỗi khi tạo người dùng')
+        }
     }
 }
 
@@ -72,9 +98,12 @@ const handleDelete = (id) => {
 }
 
 onMounted(() => {
-    fetchUsers()
-    fetchRoles()
-    fetchWarehouses()
+    const userRole = localStorage.getItem('userRole')
+    if (userRole === 'ADMIN') {
+        fetchUsers()
+        fetchRoles()
+        fetchWarehouses()
+    }
 })
 </script>
 
@@ -117,7 +146,7 @@ onMounted(() => {
                                         user.role?.roleName === 'MANAGER' ? 'bg-primary bg-opacity-10 text-primary' : 'bg-info bg-opacity-10 text-info'
                                 ]">
                                     <el-icon class="me-1">
-                                        <Shield />
+                                        <Lock />
                                     </el-icon>
                                     {{ user.role?.roleName }}
                                 </span>

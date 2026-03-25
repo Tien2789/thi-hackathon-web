@@ -6,6 +6,7 @@ D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\cont
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\controller\ApproveRequest.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\controller\AssetController.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\controller\AuthController.java
+D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\controller\CategoryController.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\controller\InventoryController.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\controller\InventoryRequest.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\controller\InventoryServiceImpl.java
@@ -14,6 +15,8 @@ D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\cont
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\controller\UserController.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\controller\WarehouseController.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\ApproveRequest.java
+D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\AuthResponse.java
+D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\CreateUserRequest.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\InboundDTO.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\InventoryRequest.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\LoginRequest.java
@@ -22,10 +25,10 @@ D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\ProductResponse.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\ProductSummaryDTO.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\RegisterRequest.java
+D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\dto\UserDTO.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\entity\Asset.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\entity\BinLocation.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\entity\Category.java
-D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\entity\GlobalExceptionHandler.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\entity\InDetail.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\entity\InventoryIn.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\entity\InventoryOut.java
@@ -69,3 +72,5 @@ D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\serv
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\service\ProductServiceImpl.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\service\QrScanService.java
 D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\service\UserDetailsServiceImpl.java
+D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\service\UserService.java
+D:\Tien\K19\thi hackathon web\ontop-wms\backend\src\main\java\com\ontop\wms\service\UserServiceImpl.java

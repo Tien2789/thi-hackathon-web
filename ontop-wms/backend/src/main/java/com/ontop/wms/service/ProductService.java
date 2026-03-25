@@ -6,4 +6,6 @@ import com.ontop.wms.entity.Product;
 
 public interface ProductService {
     List<Product> getAllProducts();
+    Product createProduct(Product product);
+    void deleteProduct(Integer id);
 }

@@ -5,6 +5,7 @@ const routes = [
   { path: '/', component: () => import('../views/Dashboard.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/products', component: () => import('../views/ProductList.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/products/:id', component: () => import('../views/ProductDetail.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
+  { path: '/categories', component: () => import('../views/Category.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/warehouses', component: () => import('../views/Warehouse.vue'), meta: { roles: ['ADMIN', 'MANAGER'] } },
   { path: '/inbound', component: () => import('../views/Inbound.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/outbound', component: () => import('../views/Outbound.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },

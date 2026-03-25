@@ -10,7 +10,6 @@ com\ontop\wms\dto\InboundDTO.class
 com\ontop\wms\controller\WarehouseController.class
 com\ontop\wms\dto\OutboundDTO.class
 com\ontop\wms\dto\ProductResponse.class
-com\ontop\wms\config\DataInitializer.class
 com\ontop\wms\repository\AssetRepository.class
 com\ontop\wms\dto\LoginRequest.class
 com\ontop\wms\repository\UserRepository.class
