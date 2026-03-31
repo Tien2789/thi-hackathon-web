@@ -1,0 +1,113 @@
+﻿
+> frontend@0.0.0 build
+> vite build
+
+[36mvite v6.4.1 [32mbuilding for production...[36m[39m
+transforming...
+npm : [33msrc/views/Produc
+tDetail.vue (53:2): Error 
+when using sourcemap for 
+reporting an error: Can't 
+resolve original location 
+of error.[39m
+At line:1 char:1
++ npm run build > 
+build_error.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: ([3  
+  3msrc/views/... of err   
+ or.[39m:String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+[32mâœ“[39m 1744 modules transformed.
+[31mâœ—[39m Build failed 
+in 4.83s
+[31merror during build:
+[31msrc/views/ProductDetai
+l.vue (53:2): "History" is 
+not exported by "node_modul
+es/@element-plus/icons-vue/
+dist/index.js", imported 
+by "src/views/ProductDetail
+.vue".[31m
+file: [36mD:/Tien/K19/thi 
+hackathon web/ontop-wms/fro
+ntend/src/views/ProductDeta
+il.vue:53:2[31m
+[33m
+51:   InfoFilled, 
+52:   TrendCharts, 
+53:   History as 
+HistoryIcon, 
+      ^
+54:   CollectionTag 
+55: } from 
+'@element-plus/icons-vue'
+[31m
+    at getRollupError (file
+:///D:/Tien/K19/thi%20hacka
+thon%20web/ontop-wms/fronte
+nd/node_modules/rollup/dist
+/es/shared/parseAst.js:406:
+41)
+    at error (file:///D:/Ti
+en/K19/thi%20hackathon%20we
+b/ontop-wms/frontend/node_m
+odules/rollup/dist/es/share
+d/parseAst.js:402:42)
+    at Module.error (file:/
+//D:/Tien/K19/thi%20hackath
+on%20web/ontop-wms/frontend
+/node_modules/rollup/dist/e
+s/shared/node-entry.js:1738
+0:16)
+    at 
+Module.traceVariable (file:
+///D:/Tien/K19/thi%20hackat
+hon%20web/ontop-wms/fronten
+d/node_modules/rollup/dist/
+es/shared/node-entry.js:178
+13:29)
+    at 
+ModuleScope.findVariable (f
+ile:///D:/Tien/K19/thi%20ha
+ckathon%20web/ontop-wms/fro
+ntend/node_modules/rollup/d
+ist/es/shared/node-entry.js
+:15403:39)
+    at 
+ChildScope.findVariable (fi
+le:///D:/Tien/K19/thi%20hac
+kathon%20web/ontop-wms/fron
+tend/node_modules/rollup/di
+st/es/shared/node-entry.js:
+5676:38)
+    at 
+FunctionScope.findVariable 
+(file:///D:/Tien/K19/thi%20
+hackathon%20web/ontop-wms/f
+rontend/node_modules/rollup
+/dist/es/shared/node-entry.
+js:5676:38)
+    at FunctionBodyScope.fi
+ndVariable (file:///D:/Tien
+/K19/thi%20hackathon%20web/
+ontop-wms/frontend/node_mod
+ules/rollup/dist/es/shared/
+node-entry.js:5676:38)
+    at ReturnValueScope.fin
+dVariable (file:///D:/Tien/
+K19/thi%20hackathon%20web/o
+ntop-wms/frontend/node_modu
+les/rollup/dist/es/shared/n
+ode-entry.js:5676:38)
+    at FunctionBodyScope.fi
+ndVariable (file:///D:/Tien
+/K19/thi%20hackathon%20web/
+ontop-wms/frontend/node_mod
+ules/rollup/dist/es/shared/
+node-entry.js:5676:38)[39m

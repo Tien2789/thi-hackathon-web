@@ -16,29 +16,29 @@
 
 | Thành phần | Công nghệ | Chi tiết |
 |---|---|---|
-| **Backend** | Spring Boot 3.x + Java | Port `8080`, context-path `/api` |
-| **Frontend** | Vue 3 + Vite + Element Plus | Port `5173` |
+| **Backend** | Spring Boot 3.4.x + Java 24 | Port `8080`, context-path `/api` |
+| **Frontend** | Vue 3 + Vite 6 + Element Plus | Port `5173` |
 | **Database** | MySQL | JPA/Hibernate auto-manage |
 | **Auth** | JWT Bearer Token | Stateless, BCrypt password |
-| **UI Library** | Element Plus + Bootstrap 5 | Sidebar layout, RBAC menu |
+| **UI Library** | Element Plus + Bootstrap 5 | Sidebar layout, RBAC menu (Icon Aliasing applied) |
 
 ### Cấu trúc thư mục
 
 ```
 ontop-wms/
 ├── backend/src/main/java/com/ontop/wms/
-│   ├── config/          # SecurityConfig, DataInitializer, GlobalExceptionHandler
-│   ├── controller/      # 8 REST Controllers (Auth, Product, Inventory, Asset, Alert, Report, User, Warehouse)
-│   ├── dto/             # Data Transfer Objects (LoginRequest, AuthResponse, CreateUserRequest, ...)
-│   ├── entity/          # 15 JPA Entities
+│   ├── config/          # 4 Configs (Security, DataInit, GlobalException, Bootstrap)
+│   ├── controller/      # 11 REST Controllers (Auth, Product, Inventory, Asset, Alert, Report, User, Warehouse, Category, Notification, Pdf)
+│   ├── dto/             # 12 Data Transfer Objects (Login, Auth, Inventory, User, ...)
+│   ├── entity/          # 16 JPA Entities
 │   ├── repository/      # 17 JPA Repositories
-│   ├── service/         # 5 Service interfaces + 5 implementations
-│   └── security/        # JwtAuthenticationFilter, JwtTokenUtil
+│   ├── service/         # 10 Services (Interface + Implementation in same folder)
+│   └── security/        # Security components (JWT, CustomUserDetails)
 ├── frontend/src/
 │   ├── api/index.js     # Axios client (baseURL: http://localhost:8080/api)
 │   ├── router/index.js  # Vue Router + Route Guard (RBAC)
 │   ├── App.vue          # Main layout: Sidebar + Header + Content
-│   └── views/           # 11 Vue components (pages)
+│   └── views/           # 13 Vue components (pages)
 └── PROJECT_CONTEXT.md   # ← BẠN ĐANG ĐỌC FILE NÀY
 ```
 
@@ -60,28 +60,35 @@ ontop-wms/
 | `Role` | `roles` | id, roleName | — (3 giá trị: ADMIN, MANAGER, STAFF) |
 | `InventoryIn` | `inventory_in` | id, receiptCode, status, createdAt | ManyToOne: User(approvedBy), Warehouse. OneToMany: InDetail |
 | `InventoryOut` | `inventory_out` | id, issueCode, status, createdAt | ManyToOne: User(approvedBy), Warehouse. OneToMany: OutDetail |
-| `InDetail` | (in_details) | id, quantity | ManyToOne: InventoryIn, Product |
+| `InDetail` | (in_details) | id, quantity, **remainingQuantity**, **unitPrice**, **totalPrice**, **receivedDate**, **expiryDate** | ManyToOne: InventoryIn, Product |
 | `OutDetail` | (out_details) | id, quantity | ManyToOne: InventoryOut, Product |
 | `Asset` | `assets` | id, assetCode, status, createdAt | ManyToOne: Product |
-| `Notification` | (notifications) | id, message, isRead, ... | — |
+| `Signature` | `signatures` | id, role, signerEmail, signatureToken, isSigned, signedAt | ManyToOne: InventoryIn, InventoryOut |
+| `Notification` | `notifications` | id, type, message, isRead, createdAt | ManyToOne: User |
 | `StockLedger` | (stock_ledger) | id, ... | — |
 
 ### 2.2 Repositories
 
-Mỗi Entity trên có 1 Repository JPA tương ứng trong `com.ontop.wms.repository`. Đáng chú ý:
-- `NotificationRepository` → có method `findByIsReadFalse()`
-- `OutDetailRepository` → có method `findByInventoryOut(InventoryOut)`
-- `UserRepository` → có method `findByUsername(String)` với `@EntityGraph`
+Mỗi Entity trên có 1 Repository JPA tương ứng trong `com.ontop.wms.repository`. Hệ thống hiện có **17 Repositories**, bao gồm repository đặc biệt:
+- `NotificationRepository` → Cần khai báo: `List<Notification> findByIsReadFalse()`
+- `ProductBinRepository` → Quản lý mqh sản phẩm và vị trí kho
+- `UserRepository` → `findByUsername(String)` với `@EntityGraph`
+- `SignatureRepository` → Tìm kiếm chữ ký theo token
 
 ### 2.3 Services
 
-| Service Interface | Implementation | Chức năng chính |
+| Service | Implementation | Chức năng chính |
 |---|---|---|
-| `AuthService` | `AuthServiceImpl` | `login(LoginRequest)` → authenticate, generate JWT, return token+role+warehouseId |
-| `ProductService` | `ProductServiceImpl` | `getAllProducts()`, `createProduct()`, `deleteProduct()` |
-| `InventoryService` | `InventoryServiceImpl` | `getAllInbounds()`, `createInbound()`, `approveInbound()`, `getAllOutbounds()`, `createOutbound()`, `approveOutbound()`, `undoOutbound()` |
-| `UserService` | `UserServiceImpl` | `getAllUsers()`, `getAllRoleNames()`, `createUser()`, `deleteUser()` |
-| `AssetService` | (class trực tiếp) | `calculateDepreciation(assetId)` — công thức khấu hao đường thẳng 10%/năm |
+| `AuthService` | `AuthServiceImpl` | Xử lý Login, generate JWT, trả về token/role/warehouse |
+| `ProductService` | `ProductServiceImpl` | CRUD sản phẩm, tự động sinh SKU Code |
+| `InventoryService`| `InventoryServiceImpl`| Xử lý Nhập/Xuất kho (FIFO), Ký duyệt số, Hoàn tác xuất kho |
+| `UserService` | `UserServiceImpl` | Quản lý người dùng, phân quyền qua Role |
+| `AssetService` | (class trực tiếp) | Tính khấu hao tài sản (10%/năm) |
+| `EmailService` | (class trực tiếp) | Gửi email thông báo ký duyệt và link |
+| `PdfService` | (class trực tiếp) | Render HTML sang PDF (biểu mẫu 01, 02, 06-VT) |
+| `AlertService` | (class trực tiếp) | Quét hàng tồn lâu ngày, sắp hết hạn (@Scheduled) |
+| `QrScanService` | (class trực tiếp) | Xử lý logic quét mã QR cho sản phẩm/phiếu |
+| `UserDetailsService`| `UserDetailsServiceImpl`| Core interface của Spring Security |
 
 ### 2.4 Controllers — Chi tiết từng endpoint
 
@@ -158,7 +165,7 @@ File cấu hình: `SecurityConfig.java`
 
 ---
 
-### 4.3 Categories (Không có Controller riêng)
+### 4.3 Categories (`CategoryController` → `/categories`)
 
 | Method | Endpoint | Frontend File | Hàm gọi API | Mô tả |
 |---|---|---|---|---|
@@ -176,11 +183,11 @@ File cấu hình: `SecurityConfig.java`
 
 | Method | Endpoint | Frontend File | Hàm gọi API | Mô tả |
 |---|---|---|---|---|
-| GET | `/warehouses` | `Warehouse.vue`, `UserManagement.vue` | `api.get('/warehouses')` | Lấy danh sách kho (ADMIN=tất cả, khác=kho được gán) |
+| GET | `/warehouses` | `Warehouse.vue`, `UserManagement.vue` | `api.get('/warehouses')` | Lấy danh sách kho (ADMIN=tất cả, MANAGER=theo kho) |
 | POST | `/warehouses` | `Warehouse.vue` | `api.post('/warehouses', form)` | Thêm kho mới |
 | PUT | `/warehouses/{id}` | `Warehouse.vue` | `api.put('/warehouses/${id}', form)` | Cập nhật kho |
 | DELETE | `/warehouses/{id}` | `Warehouse.vue` | `api.delete('/warehouses/${id}')` | Xóa kho |
-| GET | `/warehouses/{id}/bin-stock` | *(chưa dùng)* | — | Placeholder, chưa implement |
+| GET | `/warehouses/{id}/bin-stock` | `WarehouseDetail.vue` | `api.get('/warehouses/${id}/bin-stock')` | Lấy danh sách sản phẩm và tồn kho theo ID kho |
 
 ---
 
@@ -188,15 +195,20 @@ File cấu hình: `SecurityConfig.java`
 
 | Method | Endpoint | Frontend File | Hàm gọi API | Mô tả |
 |---|---|---|---|---|
-| GET | `/inventory/inbounds` | `Inbound.vue` | `api.get('/inventory/inbounds')` | Danh sách phiếu nhập |
-| POST | `/inventory/inbounds` | `Inbound.vue` | `api.post('/inventory/inbounds', {receiptCode})` | Tạo phiếu nhập nháp (PENDING) |
-| POST | `/inventory/inbounds/{id}/approve` | `Inbound.vue` | `api.post('/inventory/inbounds/${id}/approve', {productId, quantity})` | Duyệt → cộng tồn kho |
+| GET | `/inventory/inbounds` | `Inbound.vue` | `api.get('/inventory/inbounds')` | Danh sách phiếu nhập (kèm Circular 200 fields) |
+| POST | `/inventory/inbounds` | `Inbound.vue` | `api.post('/inventory/inbounds', {receiptCode, delivererName, documentNumber, signerEmails})` | Lập phiếu (Mẫu 01-VT) & Gửi mail ký duyệt |
+| POST | `/inventory/inbounds/{id}/approve` | `Inbound.vue` | `api.post('/inventory/inbounds/${id}/approve', {productId, quantity, unitPrice, expiryDate})` | Phê duyệt nhập thực tế → tạo batch InDetail |
+
+**Business Logic (createInbound)**:
+1. Lưu thông tin người giao, số chứng từ (Circular 200).
+2. Tạo danh sách `Signature` chờ ký cho các bên liên quan.
+3. Gửi email thông báo kèm link ký duyệt.
 
 **Business Logic (approveInbound)**:
-1. Kiểm tra status = PENDING
-2. Tìm Product, cộng `currentStock += quantity`
-3. Tạo `InDetail` record
-4. Đổi status → APPROVED
+1. Kiểm tra status = PENDING_SIGNATURE (đã ký xong) hoặc PENDING.
+2. Tìm Product, cộng `currentStock += quantity`.
+3. Tạo `InDetail` record (lô hàng) với `receivedDate`, `unitPrice`, `remainingQuantity`.
+4. Đổi status → APPROVED.
 
 ---
 
@@ -204,10 +216,16 @@ File cấu hình: `SecurityConfig.java`
 
 | Method | Endpoint | Frontend File | Hàm gọi API | Mô tả |
 |---|---|---|---|---|
-| GET | `/inventory/outbounds` | `Outbound.vue` | `api.get('/inventory/outbounds')` | Danh sách lệnh xuất |
-| POST | `/inventory/outbounds` | `Outbound.vue` | `api.post('/inventory/outbounds', {issueCode})` | Tạo lệnh xuất nháp (PENDING) |
-| POST | `/inventory/outbounds/{id}/approve` | `Outbound.vue` | `api.post('/inventory/outbounds/${id}/approve', {productId, quantity})` | Duyệt → trừ tồn kho (kiểm tra đủ hàng) |
+| GET | `/inventory/outbounds` | `Outbound.vue` | `api.get('/inventory/outbounds')` | Danh sách lệnh xuất (kèm Circular 200 fields) |
+| POST | `/inventory/outbounds` | `Outbound.vue` | `api.post('/inventory/outbounds', {issueCode, receiverName, reason, signerEmails})` | Lập lệnh (Mẫu 02-VT) & Gửi mail ký duyệt |
+| POST | `/inventory/outbounds/{id}/approve` | `Outbound.vue` | `api.post('/inventory/outbounds/${id}/approve', {productId, quantity})` | Duyệt → trừ tồn kho theo **FIFO** |
 | POST | `/inventory/outbounds/{id}/undo` | `Outbound.vue` | `api.post('/inventory/outbounds/${id}/undo')` | Hoàn tác → cộng lại tồn kho, status=CANCELLED |
+
+**Business Logic (approveOutbound)**:
+1. Kiểm tra status = PENDING_SIGNATURE (đã ký xong).
+2. Tìm các lô `InDetail` cũ nhất của sản phẩm (OrderBy receivedDate Asc).
+3. Trừ `remainingQuantity` cho đến khi đủ số lượng xuất (Logic FIFO).
+4. Cập nhật `Product.currentStock`, status → APPROVED.
 
 **Business Logic (approveOutbound)**:
 1. Kiểm tra status = PENDING
@@ -232,24 +250,31 @@ File cấu hình: `SecurityConfig.java`
 
 ---
 
-### 4.8 Alerts (`AlertController` → `/alerts`)
+### 4.9 Digital Signatures (`SignatureController` → `/api/signatures`)
 
 | Method | Endpoint | Frontend File | Hàm gọi API | Mô tả |
 |---|---|---|---|---|
-| GET | `/alerts` | *(App.vue badge — hiện chưa gọi API)* | — | Lấy notifications chưa đọc |
+| GET | `/api/signatures/{token}` | `Signature.vue` | `api.get('/signatures/${token}')` | Lấy thông tin chứng từ để người dùng ký |
+| POST | `/api/signatures/{token}/confirm` | `Signature.vue` | `api.post('/signatures/${token}/confirm')` | Xác nhận ký điện tử |
 
----
-
-### 4.9 Reports (`ReportController` → `/reports`)
+### 4.10 Notifications/Alerts (`NotificationController` → `/api/notifications`)
 
 | Method | Endpoint | Frontend File | Hàm gọi API | Mô tả |
 |---|---|---|---|---|
-| GET | `/reports/dashboard-stats` | `Dashboard.vue` | `api.get('/reports/dashboard-stats')` | 4 thẻ thống kê (Dữ liệu thực từ DB) |
-| GET | `/reports/recent-activities` | `Dashboard.vue` | `api.get('/reports/recent-activities')` | Hoạt động gần đây (Dữ liệu thực từ DB) |
-| GET | `/reports/inventory` | *(chưa dùng)* | — | Báo cáo tồn kho chung |
-| GET | `/reports/dashboard` | *(chưa dùng)* | — | Dữ liệu biểu đồ |
-| GET | `/reports/inventory-status` | `Reports.vue` | `api.get('/reports/inventory-status')` | Danh sách tồn kho sản phẩm |
-| GET | `/reports/alerts` | `Reports.vue` | `api.get('/reports/alerts')` | Cảnh báo tồn kho thấp |
+| GET | `/api/notifications/unread` | `Dashboard.vue` | `api.get('/api/notifications/unread')` | Lấy cảnh báo storage limit / hết hạn chưa đọc |
+| POST | `/api/notifications/{id}/read` | `Dashboard.vue` | `api.post('/api/notifications/${id}/read')` | Đánh dấu đã đọc cảnh báo |
+
+### 4.11 Reports & Exports (`ReportController`, `PdfController`)
+
+| Method | Endpoint | Frontend File | Hàm gọi API | Mô tả |
+|---|---|---|---|---|
+| POST | `/api/pdf/generate` | `Inbound.vue`, `Outbound.vue` | `api.post('/pdf/generate', html)` | Xuất file PDF biểu mẫu chuẩn |
+| GET | `/reports/dashboard-stats` | `Dashboard.vue` | `api.get('/reports/dashboard-stats')` | 4 thẻ thống kê Dashboard (SKU, Phiếu, Lệnh, Cảnh báo) |
+| GET | `/reports/recent-activities` | `Dashboard.vue` | `api.get('/reports/recent-activities')` | 10 hoạt động gần nhất (In/Out) |
+| GET | `/reports/inventory-status` | `Reports.vue` | `api.get('/reports/inventory-status')` | Danh sách tồn kho sản phẩm từ DB |
+| GET | `/reports/alerts` | `Reports.vue` | `api.get('/reports/alerts')` | Danh sách cảnh báo hàng sắp hết |
+| GET | `/reports/inventory` | (internal) | `api.get('/reports/inventory')` | Báo cáo tổng hợp số lượng sản phẩm/tồn kho |
+| GET | `/reports/dashboard` | (internal) | `api.get('/reports/dashboard')` | Dữ liệu cho biểu đồ Nhập/Xuất |
 
 > [!NOTE]
 > `ReportController` đã được cập nhật để sử dụng dữ liệu thực từ Database và bổ sung đầy đủ endpoint cho Reports.vue.
@@ -260,10 +285,13 @@ File cấu hình: `SecurityConfig.java`
 
 | Method | Endpoint | Frontend File | Hàm gọi API | Mô tả |
 |---|---|---|---|---|
-| GET | `/users` | `UserManagement.vue` | `api.get('/users')` | Danh sách users (với role & warehouse) |
+| GET | `/users` | `UserManagement.vue` | `api.get('/users')` | Danh sách users (ADMIN=tất cả, MANAGER=theo kho) |
 | GET | `/users/roles` | `UserManagement.vue` | `api.get('/users/roles')` | Danh sách tên roles |
 | POST | `/users` | `UserManagement.vue` | `api.post('/users', {username, password, roleName, warehouseId})` | Tạo user mới |
-| DELETE | `/users/{id}` | `UserManagement.vue` | `api.delete('/users/${id}')` | Xóa user (không cho phép tự xóa) |
+| DELETE | `/users/{id}` | `UserManagement.vue` | `api.delete('/users/${id}')` | Xóa user |
+
+**UserResponseDTO**: `{ id, username, role: {id, roleName}, warehouse: {id, name}, isActive }`
+*(Lưu ý: warehouse có thể null đối với ADMIN)*
 
 ---
 
@@ -284,12 +312,14 @@ File cấu hình: `SecurityConfig.java`
 | `/products/:id` | `ProductDetail.vue` | ADMIN, MANAGER, STAFF | Chi tiết sản phẩm |
 | `/categories` | `Category.vue` | ADMIN, MANAGER, STAFF | |
 | `/warehouses` | `Warehouse.vue` | ADMIN, MANAGER | |
+| `/warehouses/:id` | `WarehouseDetail.vue` | ADMIN, MANAGER | Chi tiết kho |
 | `/inbound` | `Inbound.vue` | ADMIN, MANAGER, STAFF | |
 | `/outbound` | `Outbound.vue` | ADMIN, MANAGER, STAFF | |
 | `/assets` | `Assets.vue` | ADMIN, MANAGER, STAFF | |
 | `/reports` | `Reports.vue` | ADMIN, MANAGER | |
 | `/users` | `UserManagement.vue` | ADMIN | |
 | `/profile` | `Login.vue` (mode: profile) | — | Chưa implement |
+| `/signature/:token` | `Signature.vue` | Public | Trang ký duyệt dành cho các bên liên quan |
 
 ---
 
@@ -301,9 +331,20 @@ File cấu hình: `SecurityConfig.java`
 | 2 | Thiếu endpoints metadata cho Product | 🟡 Medium | ✅ **Fixed** | Đã thêm /categories, /suppliers, /units vào ProductController |
 | 3 | Thiếu endpoints cho Reports | 🟡 Medium | ✅ **Fixed** | Đã thêm /inventory-status và /alerts vào ReportController |
 | 4 | Report data hardcoded | 🟡 Medium | ✅ **Fixed** | Đã thay bằng dữ liệu thực truy vấn từ Database |
-| 5 | WarehouseController.getBinStock rỗng | 🟢 Low | 🕒 *Pending* | Cần bổ sung dữ liệu BinLocation thực tế |
+| 5 | WarehouseController.getBinStock rỗng | 🟢 Low | ✅ **Fixed** | Đã triển khai repository query và API để lấy danh sách sản phẩm theo kho |
 | 6 | ProductList.vue delete chưa gọi API | 🟢 Low | ✅ **Fixed** | Đã thêm DELETE API + cập nhật frontend |
-| 7 | Duplicate InventoryServiceImpl | 🟡 Medium | ✅ **Fixed** | Đã xóa các file rác trong folder controller/ |
+| 7 | Duplicate InventoryServiceImpl | 🟡 Medium | ✅ **Fixed** | Đã xóa các file rác (controller/InventoryServiceImpl.java, controller/ApproveRequest.java...) |
+| 8 | Lỗi biên dịch và 403 tại trang Quản lý người dùng | 🔴 Critical | ✅ **Fixed** | Đã xử lý xong các lỗi import DTO và đồng bộ Prefix Role. |
+| 9 | Lỗi 400 thay vì 403 khi bị từ chối truy cập | 🟡 Medium | ✅ **Fixed** | Đã thêm handler cho `AccessDeniedException` trong `GlobalExceptionHandler`. |
+| 10 | Thiếu RBAC trên các Controller khác | 🟡 Medium | ✅ **Fixed** | Đã bổ sung `@PreAuthorize` cho các controller cần bảo mật. |
+| 11 | SKU Code tự động tạo từ tên sản phẩm | 🟢 Low | ✅ **Fixed** | Backend tự động sinh `skuCode`, Frontend đã cập nhật UI. |
+| 12 | Thiếu trang Chi tiết kho | 🟡 Medium | ✅ **Fixed** | Đã tạo `WarehouseDetail.vue` hiển thị tồn kho từng cơ sở. |
+| 13 | Nâng cấp hệ thống theo Thông tư 200 | 🔴 Critical | ✅ **Fixed** | Đã triển khai full 3 mẫu biểu mẫu, ký duyệt số, và logic FIFO. |
+| 14 | Cảnh báo lưu kho quá hạn (Obsolescence) | 🟡 Medium | ✅ **Fixed** | Đã thêm AlertService @Scheduled và hiển thị cảnh báo trên Dashboard. |
+| 15 | Lỗi Path Project trong IDE | 🔴 Critical | ✅ **Fixed** | Đã tạo Junction link từ `ontop-wms-backend` sang `ontop-wms/backend` để khớp với metadata IDE. |
+| 16 | Vite 7 Transformation Crash (Windows) | 🔴 Critical | ✅ **Fixed** | Hạ cấp xuống Vite 6.2.1 và Vue Plugin 5.2.1 để tránh lỗi transformation cục bộ. |
+| 17 | Icon Naming Collision & Missing Icons | 🟡 Medium | ✅ **Fixed** | Đã chuẩn hóa icon imports (aliasing) và thay thế các icon không tồn tại (History -> Timer). |
+| 18 | Circular Dependency (Router <-> API) | 🟡 Medium | ✅ **Fixed** | Sử dụng `window.location.href` trong interceptor thay vì router-instance. |
 
 ---
 

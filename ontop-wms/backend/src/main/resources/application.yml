@@ -1,6 +1,17 @@
 spring:
   application:
     name: ontop-wms-backend
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: wms.ontop@gmail.com
+    password: dummy_password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   threads:
     virtual:
       enabled: true

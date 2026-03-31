@@ -7,12 +7,14 @@ const routes = [
   { path: '/products/:id', component: () => import('../views/ProductDetail.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/categories', component: () => import('../views/Category.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/warehouses', component: () => import('../views/Warehouse.vue'), meta: { roles: ['ADMIN', 'MANAGER'] } },
+  { path: '/warehouses/:id', component: () => import('../views/WarehouseDetail.vue'), meta: { roles: ['ADMIN', 'MANAGER'] } },
   { path: '/inbound', component: () => import('../views/Inbound.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/outbound', component: () => import('../views/Outbound.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/assets', component: () => import('../views/Assets.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/reports', component: () => import('../views/Reports.vue'), meta: { roles: ['ADMIN', 'MANAGER'] } },
   { path: '/users', component: () => import('../views/UserManagement.vue'), meta: { roles: ['ADMIN'] } },
   { path: '/profile', component: () => import('../views/Login.vue'), props: { mode: 'profile' } },
+  { path: '/signature/:token', component: () => import('../views/Signature.vue'), meta: { public: true } },
 ]
 
 export const router = createRouter({
@@ -25,7 +27,7 @@ router.beforeEach((to, from, next) => {
   const userRole = localStorage.getItem('userRole')
 
   // 1. Tránh truy cập trang bảo mật khi chưa đăng nhập
-  if (to.path !== '/login' && !token) {
+  if (to.path !== '/login' && !to.meta.public && !token) {
     next('/login')
     return
   }

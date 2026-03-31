@@ -1,7 +1,13 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import {
-  Search, Plus, Edit, Delete, MoreFilled, View, Box
+  Search as SearchIcon, 
+  Plus as PlusIcon, 
+  Edit as EditIcon, 
+  Delete as DeleteIcon, 
+  MoreFilled as MoreFilledIcon, 
+  View as ViewIcon, 
+  Box as BoxIcon
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
@@ -138,7 +144,7 @@ onMounted(() => {
       </div>
       <div class="d-flex gap-2">
         <el-button>Xuất dữ liệu</el-button>
-        <el-button type="primary" :icon="Plus" @click="openAddDialog">Thêm sản phẩm mới</el-button>
+        <el-button type="primary" :icon="PlusIcon" @click="openAddDialog">Thêm sản phẩm mới</el-button>
       </div>
     </div>
 
@@ -147,7 +153,7 @@ onMounted(() => {
       <div class="card-body p-3">
         <div class="row g-3">
           <div class="col-12 col-md-4">
-            <el-input v-model="searchQuery" placeholder="Tìm theo tên sản phẩm hoặc SKU..." :prefix-icon="Search"
+            <el-input v-model="searchQuery" placeholder="Tìm theo tên sản phẩm hoặc SKU..." :prefix-icon="SearchIcon"
               clearable />
           </div>
           <div class="col-12 col-md-3">
@@ -162,7 +168,7 @@ onMounted(() => {
             </el-select>
           </div>
           <div class="col-12 col-md-3 text-end">
-            <el-button :icon="Search" type="info" plain @click="fetchProducts">Tải lại</el-button>
+            <el-button :icon="SearchIcon" type="info" plain @click="fetchProducts">Tải lại</el-button>
           </div>
         </div>
       </div>
@@ -190,7 +196,7 @@ onMounted(() => {
                   <div
                     class="product-img-placeholder rounded-3 bg-light d-flex align-items-center justify-content-center text-muted">
                     <el-icon>
-                      <Box />
+                      <BoxIcon />
                     </el-icon>
                   </div>
                   <div>
@@ -236,18 +242,18 @@ onMounted(() => {
               <td class="text-end pe-4">
                 <div class="d-flex justify-content-end gap-1">
                   <el-tooltip content="Xem chi tiết" placement="top">
-                    <el-button circle size="small" :icon="View" />
+                    <el-button circle size="small" :icon="ViewIcon" />
                   </el-tooltip>
                   <el-dropdown trigger="click">
-                    <el-button circle size="small" :icon="MoreFilled" />
+                    <el-button circle size="small" :icon="MoreFilledIcon" />
                     <template #dropdown>
                       <el-dropdown-menu>
                         <el-dropdown-item><el-icon>
-                            <Edit />
+                            <EditIcon />
                           </el-icon> Chỉnh sửa</el-dropdown-item>
                         <el-dropdown-item>Lịch sử thay đổi</el-dropdown-item>
                         <el-dropdown-item divided class="text-danger" @click="handleDelete(product.id)"><el-icon>
-                            <Delete />
+                            <DeleteIcon />
                           </el-icon> Xóa sản phẩm</el-dropdown-item>
                       </el-dropdown-menu>
                     </template>
@@ -274,8 +280,8 @@ onMounted(() => {
             </el-form-item>
           </div>
           <div class="col-md-6">
-            <el-form-item label="SKU Code" required>
-              <el-input v-model="form.skuCode" placeholder="Mã định danh SKU" />
+            <el-form-item label="Mã SKU (Tự động)">
+              <el-input v-model="form.skuCode" disabled placeholder="Hệ thống tự tạo từ tên" />
             </el-form-item>
           </div>
         </div>

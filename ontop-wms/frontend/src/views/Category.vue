@@ -1,6 +1,13 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { Plus, Search, Edit, Delete, Folder, Refresh } from '@element-plus/icons-vue'
+import { 
+  Plus as PlusIcon, 
+  Search as SearchIcon, 
+  Edit as EditIcon, 
+  Delete as DeleteIcon, 
+  Folder as FolderIcon, 
+  Refresh as RefreshIcon 
+} from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
 
@@ -107,8 +114,8 @@ onMounted(fetchCategories)
         <p class="text-muted small mb-0">Quản lý các nhóm ngành hàng trong hệ thống</p>
       </div>
       <div class="d-flex gap-2">
-        <el-input v-model="searchQuery" placeholder="Tìm kiếm danh mục..." :prefix-icon="Search" style="width: 250px" />
-        <el-button type="primary" :icon="Plus" @click="openDialog()">Thêm mới</el-button>
+        <el-input v-model="searchQuery" placeholder="Tìm kiếm danh mục..." :prefix-icon="SearchIcon" style="width: 250px" />
+        <el-button type="primary" :icon="PlusIcon" @click="openDialog()">Thêm mới</el-button>
       </div>
     </div>
 
@@ -118,7 +125,7 @@ onMounted(fetchCategories)
         <el-table-column label="Tên danh mục" width="250">
           <template #default="{ row }">
             <div class="d-flex align-items-center gap-2">
-              <el-icon class="text-primary"><Folder /></el-icon>
+              <el-icon class="text-primary"><FolderIcon /></el-icon>
               <span class="fw-bold">{{ row.name }}</span>
             </div>
           </template>
@@ -126,8 +133,8 @@ onMounted(fetchCategories)
         <el-table-column prop="description" label="Mô tả" />
         <el-table-column label="Thao tác" width="150" align="right">
           <template #default="{ row }">
-            <el-button size="small" :icon="Edit" circle plain type="primary" @click="openDialog(row)" />
-            <el-button size="small" :icon="Delete" circle plain type="danger" @click="handleDelete(row)" />
+            <el-button size="small" :icon="EditIcon" circle plain type="primary" @click="openDialog(row)" />
+            <el-button size="small" :icon="DeleteIcon" circle plain type="danger" @click="handleDelete(row)" />
           </template>
         </el-table-column>
       </el-table>

@@ -1,8 +1,19 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Plus, Box, CircleCheck, Timer, Search, View, Stamp, Camera } from '@element-plus/icons-vue'
+import { 
+  Plus as PlusIcon, 
+  Box as BoxIcon, 
+  CircleCheck as CircleCheckIcon, 
+  Timer as TimerIcon, 
+  Search as SearchIcon, 
+  View as ViewIcon, 
+  Stamp as StampIcon, 
+  Camera as CameraIcon 
+} from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
+import FormCircular200 from '../components/FormCircular200.vue'
+import { Check as CheckIcon } from '@element-plus/icons-vue'
 
 const inbounds = ref([])
 const products = ref([])
@@ -32,19 +43,31 @@ const fetchInbounds = async () => {
 
 const showCreateModal = ref(false)
 const createForm = ref({
-  receiptCode: ''
+  receiptCode: '',
+  delivererName: '',
+  documentNumber: '',
+  warehouseId: null,
+  signerEmails: []
 })
+
+const newEmail = ref('')
+const addEmail = () => {
+  if (newEmail.value && !createForm.value.signerEmails.includes(newEmail.value)) {
+    createForm.value.signerEmails.push(newEmail.value)
+    newEmail.value = ''
+  }
+}
+const removeEmail = (email) => {
+  createForm.value.signerEmails = createForm.value.signerEmails.filter(e => e !== email)
+}
 
 const handleAddInbound = async () => {
   try {
     if (!createForm.value.receiptCode) {
       createForm.value.receiptCode = `IN-${Date.now()}`
     }
-    await api.post('/inventory/inbounds', {
-      receiptCode: createForm.value.receiptCode,
-      status: 'PENDING'
-    })
-    ElMessage.success('Tạo phiếu nhập nháp thành công')
+    await api.post('/inventory/inbounds', createForm.value)
+    ElMessage.success('Tạo phiếu nhập và gửi yêu cầu ký duyệt thành công')
     showCreateModal.value = false
     fetchInbounds()
   } catch (error) {
@@ -58,12 +81,22 @@ const showApproveModal = ref(false)
 const selectedInboundId = ref(null)
 const approveForm = ref({
   productId: null,
-  quantity: 1
+  quantity: 1,
+  unitPrice: 0,
+  expiryDate: null
 })
+
+// Preview logic
+const showPreviewModal = ref(false)
+const previewData = ref({})
+const openPreview = (item) => {
+  previewData.value = { ...item, details: item.details || [] }
+  showPreviewModal.value = true
+}
 
 const openApproveDialog = (id) => {
   selectedInboundId.value = id
-  approveForm.value = { productId: null, quantity: 1 }
+  approveForm.value = { productId: null, quantity: 1, unitPrice: 0, expiryDate: null }
   showApproveModal.value = true
 }
 
@@ -74,10 +107,7 @@ const confirmApprove = async () => {
   }
 
   try {
-    await api.post(`/inventory/inbounds/${selectedInboundId.value}/approve`, {
-      productId: approveForm.value.productId,
-      quantity: approveForm.value.quantity
-    })
+    await api.post(`/inventory/inbounds/${selectedInboundId.value}/approve`, approveForm.value)
     ElMessage.success('Phê duyệt nhập kho thành công, tồn kho đã cập nhật')
     showApproveModal.value = false
     fetchInbounds()
@@ -100,7 +130,7 @@ onMounted(() => {
         <h4 class="fw-bold mb-1">Quản lý nhập kho</h4>
         <p class="text-muted small mb-0">Theo dõi và phê duyệt các lô hàng nhập bãi</p>
       </div>
-      <el-button type="primary" :icon="Plus" @click="showCreateModal = true">Tạo phiếu nhập mới</el-button>
+      <el-button type="primary" :icon="PlusIcon" @click="showCreateModal = true">Tạo phiếu nhập mới</el-button>
     </div>
 
     <!-- Stats Summary -->
@@ -140,7 +170,7 @@ onMounted(() => {
               <th class="ps-4">Mã phiếu</th>
               <th>Thời gian tạo</th>
               <th>Trạng thái</th>
-              <th>Người duyệt</th>
+              <th>Người giao</th>
               <th class="text-end pe-4">Thao tác</th>
             </tr>
           </thead>
@@ -153,17 +183,17 @@ onMounted(() => {
                   item.status === 'APPROVED' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning'
                 ]">
                   <el-icon class="me-1">
-                    <component :is="item.status === 'APPROVED' ? CircleCheck : Timer" />
+                    <component :is="item.status === 'APPROVED' ? CircleCheckIcon : TimerIcon" />
                   </el-icon>
-                  {{ item.status === 'APPROVED' ? 'Đã duyệt' : 'Chờ duyệt' }}
+                  {{ item.status === 'APPROVED' ? 'Đã duyệt' : (item.status === 'PENDING_SIGNATURE' ? 'Chờ ký' : 'Chờ duyệt') }}
                 </span>
               </td>
-              <td>{{ item.approvedBy?.username || '-' }}</td>
+              <td>{{ item.delivererName || '-' }}</td>
               <td class="text-end pe-4">
                 <el-button-group>
-                  <el-button size="small" :icon="View" plain>Chi tiết</el-button>
-                  <el-button v-if="item.status === 'PENDING'" size="small" type="success" :icon="Stamp"
-                    @click="openApproveDialog(item.id)">Phê duyệt</el-button>
+                  <el-button size="small" :icon="ViewIcon" plain @click="openPreview(item)">Xem mẫu 01-VT</el-button>
+                  <el-button v-if="item.status !== 'APPROVED'" size="small" type="success" :icon="StampIcon"
+                    @click="openApproveDialog(item.id)">Nhập kho</el-button>
                 </el-button-group>
               </td>
             </tr>
@@ -176,46 +206,78 @@ onMounted(() => {
     </div>
 
     <!-- Create Dialog -->
-    <el-dialog v-model="showCreateModal" title="Tạo phiếu nhập kho mới" width="500px">
+    <el-dialog v-model="showCreateModal" title="Lập phiếu nhập kho (Mẫu 01-VT)" width="600px">
       <el-form :model="createForm" label-position="top">
-        <el-form-item label="Mã phiếu nhập (Để trống để tự tạo)">
-          <el-input v-model="createForm.receiptCode" placeholder="Ví dụ: PN-001" />
-        </el-form-item>
-        <div class="p-3 bg-light rounded-3 mb-1">
-          <p class="small text-muted mb-0">Phiếu nhập sẽ được tạo ở trạng thái <b>Chờ duyệt</b>. Bạn cần chọn sản phẩm
-            và số lượng ở bước phê duyệt.</p>
+        <div class="row">
+          <div class="col-md-6">
+            <el-form-item label="Mã phiếu nhập">
+              <el-input v-model="createForm.receiptCode" placeholder="Tự động nếu để trống" />
+            </el-form-item>
+          </div>
+          <div class="col-md-6">
+            <el-form-item label="Số chứng từ gốc">
+              <el-input v-model="createForm.documentNumber" placeholder="Số hóa đơn/biên bản" />
+            </el-form-item>
+          </div>
         </div>
+        <el-form-item label="Họ tên người giao hàng">
+          <el-input v-model="createForm.delivererName" />
+        </el-form-item>
+        
+        <el-divider content-position="left">Luồng ký duyệt điện tử</el-divider>
+        <el-form-item label="Email các bên liên quan (để gửi link ký)">
+          <div class="d-flex gap-2 mb-2">
+            <el-input v-model="newEmail" placeholder="example@gmail.com" @keyup.enter="addEmail" />
+            <el-button type="primary" @click="addEmail">Thêm</el-button>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <el-tag v-for="email in createForm.signerEmails" :key="email" closable @close="removeEmail(email)">
+              {{ email }}
+            </el-tag>
+          </div>
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showCreateModal = false">Hủy bỏ</el-button>
-          <el-button type="primary" @click="handleAddInbound">Tạo phiếu nháp</el-button>
+          <el-button type="primary" @click="handleAddInbound">Lập phiếu & Gửi yêu cầu ký</el-button>
         </div>
       </template>
     </el-dialog>
 
     <!-- Approve Dialog -->
-    <el-dialog v-model="showApproveModal" title="Phê duyệt nhập kho" width="500px">
+    <el-dialog v-model="showApproveModal" title="Thực nhập kho & Cập nhật tồn" width="500px">
       <el-form :model="approveForm" label-position="top">
         <el-form-item label="Sản phẩm nhập kho" required>
           <el-select v-model="approveForm.productId" placeholder="Chọn sản phẩm" class="w-100" filterable>
             <el-option v-for="p in products" :key="p.id" :label="`${p.productName} (${p.skuCode})`" :value="p.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="Số lượng thực nhập" required>
-          <el-input-number v-model="approveForm.quantity" :min="1" class="w-100" />
-        </el-form-item>
-        <div class="p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3">
-          <p class="small text-success fw-bold mb-1">Xác nhận</p>
-          <p class="small text-dark mb-0">Sau khi duyệt, hệ thống sẽ cộng dồn số lượng vào tồn kho và ghi lại nhật ký
-            giao
-            dịch.</p>
+        <div class="row">
+          <div class="col-6">
+            <el-form-item label="Số lượng thực nhập" required>
+              <el-input-number v-model="approveForm.quantity" :min="1" class="w-100" />
+            </el-form-item>
+          </div>
+          <div class="col-6">
+            <el-form-item label="Đơn giá (VNĐ)">
+              <el-input-number v-model="approveForm.unitPrice" :min="0" :step="1000" class="w-100" />
+            </el-form-item>
+          </div>
         </div>
+        <el-form-item label="Hạn sử dụng">
+          <el-date-picker v-model="approveForm.expiryDate" type="date" placeholder="Chọn ngày" class="w-100" format="DD/MM/YYYY" value-format="YYYY-MM-DD" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showApproveModal = false">Hủy</el-button>
-        <el-button type="success" @click="confirmApprove">Xác nhận Duyệt</el-button>
+        <el-button type="success" @click="confirmApprove">Xác nhận Nhập kho</el-button>
       </template>
+    </el-dialog>
+
+    <!-- Preview Dialog -->
+    <el-dialog v-model="showPreviewModal" title="Xem trước biểu mẫu" width="1050px" top="5vh">
+      <FormCircular200 type="inbound" :data="previewData" />
     </el-dialog>
   </div>
 </template>

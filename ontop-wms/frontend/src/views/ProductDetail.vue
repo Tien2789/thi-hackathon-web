@@ -2,8 +2,13 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { 
-  Back, Box, Timer, Edit, InfoFilled, 
-  TrendCharts, History, CollectionTag 
+  Back as BackIcon, 
+  Box as BoxIcon, 
+  Timer as TimerIcon, 
+  Edit as EditIcon, 
+  InfoFilled, 
+  TrendCharts, 
+  CollectionTag 
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -32,7 +37,7 @@ const product = ref({
   <div class="product-detail-view">
     <div class="d-flex align-items-center gap-3 mb-4">
       <router-link to="/products" class="btn btn-outline-secondary border-0 rounded-circle p-2">
-        <el-icon class="fs-4"><Back /></el-icon>
+        <el-icon class="fs-4"><BackIcon /></el-icon>
       </router-link>
       <div>
         <div class="d-flex align-items-center gap-2">
@@ -51,13 +56,13 @@ const product = ref({
             <div class="row">
               <div class="col-md-4 mb-4 mb-md-0">
                 <div class="product-gallery rounded-4 bg-light d-flex align-items-center justify-content-center p-5 border h-100">
-                  <el-icon class="display-1 text-muted opacity-25"><Box /></el-icon>
+                  <el-icon class="display-1 text-muted opacity-25"><BoxIcon /></el-icon>
                 </div>
               </div>
               <div class="col-md-8">
                 <div class="d-flex justify-content-between mb-3">
                   <span class="text-muted fw-bold small text-uppercase ls-1">Thông tin cơ bản</span>
-                  <el-button type="primary" link :icon="Edit">Chỉnh sửa</el-button>
+                  <el-button type="primary" link :icon="EditIcon">Chỉnh sửa</el-button>
                 </div>
                 <h5 class="fw-bold mb-3">{{ product.name }}</h5>
                 <p class="text-muted mb-4">{{ product.description }}</p>
@@ -103,9 +108,9 @@ const product = ref({
           <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <span class="small fw-bold text-uppercase opacity-75">Tồn kho hiện tại</span>
-              <el-icon class="fs-4"><History /></el-icon>
+              <el-icon class="fs-4"><TimerIcon /></el-icon>
             </div>
-            <h2 class="display-5 fw-extrabold mb-1">{{ product.stock }}</h2>
+            <h2 class="display-5 fw-bold mb-1">{{ product.stock }}</h2>
             <p class="small mb-4 opacity-75">Đơn vị tính: CÁI</p>
             <div class="p-3 rounded-3 bg-white bg-opacity-10 border border-white border-opacity-10 mb-2">
               <p class="small mb-1 opacity-75">Vị trí lưu kho</p>

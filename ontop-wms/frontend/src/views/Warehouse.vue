@@ -1,8 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { School, MapLocation, User, PieChart, Menu as IconMenu, Edit, Delete } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import { School as SchoolIcon, MapLocation as MapLocationIcon, User as UserIcon, PieChart as PieChartIcon, Menu as IconMenu, Edit as EditIcon, Delete as DeleteIcon } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import api from '../api'
+
+const router = useRouter()
 
 const warehouses = ref([])
 const loading = ref(false)
@@ -94,7 +97,7 @@ onMounted(() => {
         <h4 class="fw-bold mb-1">Hệ thống kho bãi</h4>
         <p class="text-muted small mb-0">Quản lý các địa điểm lưu kho toàn quốc</p>
       </div>
-      <el-button v-if="isAdmin" type="primary" :icon="School" @click="openAddDialog">Thêm kho mới</el-button>
+      <el-button v-if="isAdmin" type="primary" :icon="SchoolIcon" @click="openAddDialog">Thêm kho mới</el-button>
     </div>
 
     <div class="row g-4 mb-5">
@@ -103,14 +106,14 @@ onMounted(() => {
           <div class="card-header border-0 bg-white p-4 pb-0 d-flex justify-content-between align-items-start">
             <div class="wh-icon bg-primary bg-opacity-10 text-primary rounded-3 p-3">
               <el-icon class="fs-3">
-                <School />
+                <SchoolIcon />
               </el-icon>
             </div>
             <div class="d-flex gap-2 align-items-center">
               <span class="badge bg-light text-primary border border-primary border-opacity-25 fw-bold">{{ wh.code
               }}</span>
               <el-dropdown v-if="isAdmin" trigger="click">
-                <el-button link :icon="Edit" />
+                <el-button link :icon="EditIcon" />
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item @click="handleEdit(wh)">Chỉnh sửa</el-dropdown-item>
@@ -123,7 +126,7 @@ onMounted(() => {
           <div class="card-body p-4">
             <h5 class="fw-bold mb-1 text-dark">{{ wh.name }}</h5>
             <p class="text-muted small mb-3"><el-icon class="me-1">
-                <MapLocation />
+                <MapLocationIcon />
               </el-icon>{{ wh.location }}</p>
 
             <div class="p-3 bg-light rounded-3 mb-4">
@@ -148,8 +151,8 @@ onMounted(() => {
             </div>
 
             <div class="d-grid gap-2">
-              <el-button plain :icon="IconMenu">Quản lý sơ đồ kho</el-button>
-              <el-button type="primary" link :icon="PieChart">Báo cáo hiệu suất</el-button>
+              <el-button plain :icon="IconMenu" @click="router.push('/warehouses/' + wh.id)">Quản lý sơ đồ kho</el-button>
+              <el-button type="primary" link :icon="PieChartIcon" @click="router.push('/warehouses/' + wh.id)">Báo cáo hiệu suất</el-button>
             </div>
           </div>
         </div>

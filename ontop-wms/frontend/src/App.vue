@@ -2,20 +2,24 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
-  Box,
-  List,
-  Search,
-  Bell,
-  PieChart,
-  Van,
-  Files,
-  ShoppingCart,
-  UserFilled,
-  SwitchButton,
-  Expand,
-  Fold,
-  Setting,
-  FullScreen,
+  Box as BoxIcon,
+  List as ListIcon,
+  Search as SearchIcon,
+  Bell as BellIcon,
+  PieChart as PieChartIcon,
+  Van as VanIcon,
+  Files as FilesIcon,
+  ShoppingCart as ShoppingCartIcon,
+  UserFilled as UserFilledIcon,
+  SwitchButton as SwitchButtonIcon,
+  Expand as ExpandIcon,
+  Fold as FoldIcon,
+  Setting as SettingIcon,
+  FullScreen as FullScreenIcon,
+  User as UserIcon, 
+  Lock as LockIcon, 
+  View as ViewIcon, 
+  Hide as HideIcon
 } from "@element-plus/icons-vue";
 
 const route = useRoute();
@@ -129,7 +133,7 @@ onMounted(() => {
           >
             <el-menu-item index="/">
               <el-icon>
-                <PieChart />
+                <PieChartIcon />
               </el-icon>
               <template #title><span>Tổng quan</span></template>
             </el-menu-item>
@@ -140,7 +144,7 @@ onMounted(() => {
             >
               <template #title>
                 <el-icon>
-                  <Box />
+                  <BoxIcon />
                 </el-icon>
                 <span>Hàng hóa</span>
               </template>
@@ -158,7 +162,7 @@ onMounted(() => {
               index="/inbound"
             >
               <el-icon>
-                <Van />
+                <VanIcon />
               </el-icon>
               <template #title><span>Nhập kho</span></template>
             </el-menu-item>
@@ -168,7 +172,7 @@ onMounted(() => {
               index="/outbound"
             >
               <el-icon>
-                <ShoppingCart />
+                <ShoppingCartIcon />
               </el-icon>
               <template #title><span>Xuất kho</span></template>
             </el-menu-item>
@@ -187,14 +191,14 @@ onMounted(() => {
               index="/assets"
             >
               <el-icon>
-                <Files />
+                <FilesIcon />
               </el-icon>
               <template #title><span>Quản lý tài sản</span></template>
             </el-menu-item>
 
             <el-menu-item v-if="['ADMIN', 'MANAGER'].includes(userRole)" index="/reports">
               <el-icon>
-                <List />
+                <ListIcon />
               </el-icon>
               <template #title><span>Báo cáo vận hành</span></template>
             </el-menu-item>
@@ -238,8 +242,8 @@ onMounted(() => {
               class="btn btn-light rounded-circle shadow-sm border-0 nav-toggle-btn"
             >
               <el-icon class="fs-5 mt-1">
-                <Fold v-if="!isCollapse" />
-                <Expand v-else />
+                <FoldIcon v-if="!isCollapse" />
+                <ExpandIcon v-else />
               </el-icon>
             </button>
             <nav aria-label="breadcrumb" class="d-none d-md-block ms-2 mt-3">
@@ -260,7 +264,7 @@ onMounted(() => {
               style="width: 250px"
             >
               <span class="input-group-text bg-transparent border-0 text-muted"
-                ><el-icon> <Search /> </el-icon
+                ><el-icon> <SearchIcon /> </el-icon
               ></span>
               <input
                 type="text"
@@ -275,14 +279,14 @@ onMounted(() => {
                 class="btn btn-white border-0 p-2 text-muted hover-primary transition-all"
               >
                 <el-icon class="fs-5">
-                  <FullScreen />
+                  <FullScreenIcon />
                 </el-icon>
               </button>
               <button
                 class="btn btn-white position-relative border-0 p-2 text-muted hover-primary transition-all"
               >
                 <el-icon class="fs-5">
-                  <Bell />
+                  <BellIcon />
                 </el-icon>
                 <span
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -330,13 +334,13 @@ onMounted(() => {
                 <el-dropdown-menu class="user-dropdown">
                   <el-dropdown-item
                     ><el-icon>
-                      <UserFilled />
+                      <UserFilledIcon />
                     </el-icon>
                     Hồ sơ cá nhân</el-dropdown-item
                   >
                   <el-dropdown-item
                     ><el-icon>
-                      <Setting />
+                      <SettingIcon />
                     </el-icon>
                     Cài đặt</el-dropdown-item
                   >
@@ -346,7 +350,7 @@ onMounted(() => {
                     class="text-danger fw-bold"
                   >
                     <el-icon>
-                      <SwitchButton />
+                      <SwitchButtonIcon />
                     </el-icon>
                     Đăng xuất
                   </el-dropdown-item>

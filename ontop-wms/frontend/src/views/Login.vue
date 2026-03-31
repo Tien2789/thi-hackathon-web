@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { User, Lock, View, Hide } from '@element-plus/icons-vue'
+import { User as UserIcon, Lock as LockIcon, View as ViewIcon, Hide as HideIcon } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import api from '../api'
 
@@ -88,7 +88,7 @@ const handleLogin = async () => {
         <form @submit.prevent="handleLogin" class="d-grid gap-4">
           <div class="form-field">
             <label class="form-label fw-bold small text-uppercase text-muted mb-2 ls-1">Tài khoản</label>
-            <el-input v-model="loginForm.username" placeholder="Nhập username của bạn" :prefix-icon="User" size="large"
+            <el-input v-model="loginForm.username" placeholder="Nhập username của bạn" :prefix-icon="UserIcon" size="large"
               class="custom-input" />
           </div>
 
@@ -98,11 +98,11 @@ const handleLogin = async () => {
               <a href="#" class="text-decoration-none small fw-bold color-primary">Quên mật khẩu?</a>
             </div>
             <el-input v-model="loginForm.password" :type="showPassword ? 'text' : 'password'" placeholder="••••••••"
-              :prefix-icon="Lock" size="large" class="custom-input">
+              :prefix-icon="LockIcon" size="large" class="custom-input">
               <template #suffix>
                 <el-icon class="cursor-pointer" @click="showPassword = !showPassword">
-                  <View v-if="!showPassword" />
-                  <Hide v-else />
+                  <ViewIcon v-if="!showPassword" />
+                  <HideIcon v-else />
                 </el-icon>
               </template>
             </el-input>

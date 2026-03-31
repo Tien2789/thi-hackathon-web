@@ -1,13 +1,14 @@
 <script setup>
 import { ref, onMounted, markRaw } from 'vue'
 import {
-  Timer, ArrowUp, ArrowDown, TrendCharts,
-  Box, Van, Warning, Connection
+  Timer as TimerIcon, ArrowUp, ArrowDown, TrendCharts,
+  Box as BoxIcon, Van as VanIcon, Warning as WarningIcon, Connection as ConnectionIcon
 } from '@element-plus/icons-vue'
 import api from '../api'
 
 const stats = ref([])
 const recentActivities = ref([])
+const alerts = ref([])
 const loading = ref(false)
 const value = ref('30d')
 
@@ -15,17 +16,21 @@ const fetchDashboardData = async () => {
   try {
     loading.value = true
     const userRole = localStorage.getItem('userRole')
+    
     // Fetch stats
     if (userRole === 'ADMIN') {
       const statsRes = await api.get('/reports/dashboard-stats')
-      // Transform icons if they come as strings from backend
       stats.value = statsRes.data.map(s => ({
         ...s,
-        icon: markRaw(s.title.includes('Sản phẩm') ? Box :
-          s.title.includes('Kho') ? Connection :
-            s.title.includes('Nhập') ? Van : Warning)
+        icon: markRaw(s.title.includes('Sản phẩm') ? BoxIcon :
+          s.title.includes('Kho') ? ConnectionIcon :
+            s.title.includes('Nhập') ? VanIcon : WarningIcon)
       }))
     }
+
+    // Fetch alerts/notifications
+    const alertRes = await api.get('/notifications/unread')
+    alerts.value = alertRes.data
 
     // Fetch activities
     if (['ADMIN', 'MANAGER'].includes(userRole)) {
@@ -36,6 +41,15 @@ const fetchDashboardData = async () => {
     console.error('Lỗi tải Dashboard:', error)
   } finally {
     loading.value = false
+  }
+}
+
+const markAsRead = async (id) => {
+  try {
+    await api.post(`/notifications/${id}/read`)
+    alerts.value = alerts.value.filter(a => a.id !== id)
+  } catch (error) {
+    console.error('Lỗi đánh dấu đã đọc:', error)
   }
 }
 
@@ -52,9 +66,29 @@ onMounted(() => {
         <p class="text-muted small mb-0">Chào mừng trở lại! Dưới đây là dữ liệu mới nhất hôm nay.</p>
       </div>
       <div class="d-flex gap-2">
-        <el-button type="primary" plain :icon="Timer">Thực hiện báo cáo</el-button>
+        <el-button type="primary" plain :icon="TimerIcon">Thực hiện báo cáo</el-button>
         <el-button type="primary">Xuất dữ liệu Excel</el-button>
       </div>
+    </div>
+
+    <!-- Critical Inventory Alerts -->
+    <div v-if="alerts.length > 0" class="alerts-section mb-4">
+      <el-alert
+        v-for="alert in alerts"
+        :key="alert.id"
+        :title="alert.message"
+        :type="alert.type === 'EXPIRED' ? 'error' : 'warning'"
+        show-icon
+        class="mb-2 shadow-sm border-0 animate__animated animate__headShake"
+        @close="markAsRead(alert.id)"
+      >
+        <template #default>
+          <div class="d-flex justify-content-between align-items-center w-100 mt-1">
+            <span class="small text-muted">{{ new Date(alert.createdAt).toLocaleString() }}</span>
+            <el-link type="primary" :underline="false" class="small fw-bold">Xem chi tiết lô hàng</el-link>
+          </div>
+        </template>
+      </el-alert>
     </div>
 
     <!-- Stats Cards -->
@@ -125,7 +159,7 @@ onMounted(() => {
                   <p class="mb-1 text-dark fw-medium small">{{ activity.text }}</p>
                   <div class="d-flex justify-content-between align-items-center">
                     <span class="text-muted" style="font-size: 11px;"><el-icon class="me-1">
-                        <Timer />
+                        <TimerIcon />
                       </el-icon>{{ activity.time }}</span>
                     <span class="badge bg-light text-muted fw-normal border" style="font-size: 10px;">{{ activity.user
                       }}</span>
