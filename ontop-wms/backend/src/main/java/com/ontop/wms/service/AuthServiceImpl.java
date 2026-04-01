@@ -23,19 +23,20 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
 
-        User user = userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
         String token = jwtTokenUtil.generateToken(user.getUsername());
 
-        return AuthResponse.builder()
-                .token(token)
-                .role(user.getRole().getRoleName())
-                .warehouseId(user.getWarehouse() != null ? user.getWarehouse().getId() : null)
-                .warehouseName(user.getWarehouse() != null ? user.getWarehouse().getName() : null)
-                .build();
+        return new AuthResponse(
+                token,
+                user.getUsername(),
+                user.getRole().getRoleName(),
+                user.getWarehouse() != null ? user.getWarehouse().getId() : null,
+                user.getWarehouse() != null ? user.getWarehouse().getName() : null
+        );
     }
-}
+}

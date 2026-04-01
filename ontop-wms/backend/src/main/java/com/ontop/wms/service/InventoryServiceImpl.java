@@ -49,12 +49,15 @@ public class InventoryServiceImpl implements InventoryService {
     @Transactional
     public InventoryIn createInbound(InventoryRequest request) {
         InventoryIn inventoryIn = new InventoryIn();
-        inventoryIn.setReceiptCode(request.getReceiptCode());
-        inventoryIn.setStatus("PENDING");
-        inventoryIn.setCreatedAt(new Timestamp(Instant.now().toEpochMilli()));
-        if (request.getWarehouseId() != null) {
-            warehouseRepository.findById(request.getWarehouseId())
-                .ifPresent(inventoryIn::setWarehouse);
+        if (request != null) {
+            inventoryIn.setReceiptCode(request.getReceiptCode());
+            inventoryIn.setStatus("PENDING");
+            inventoryIn.setCreatedAt(new Timestamp(Instant.now().toEpochMilli()));
+            Integer warehouseId = request.getWarehouseId();
+            if (warehouseId != null) {
+                warehouseRepository.findById(warehouseId)
+                    .ifPresent(inventoryIn::setWarehouse);
+            }
         }
         return inventoryInRepository.save(inventoryIn);
     }
@@ -96,12 +99,15 @@ public class InventoryServiceImpl implements InventoryService {
     @Transactional
     public InventoryOut createOutbound(InventoryRequest request) {
         InventoryOut inventoryOut = new InventoryOut();
-        inventoryOut.setIssueCode(request.getIssueCode());
-        inventoryOut.setStatus("PENDING");
-        inventoryOut.setCreatedAt(new Timestamp(Instant.now().toEpochMilli()));
-        if (request.getWarehouseId() != null) {
-            warehouseRepository.findById(request.getWarehouseId())
-                .ifPresent(inventoryOut::setWarehouse);
+        if (request != null) {
+            inventoryOut.setIssueCode(request.getIssueCode());
+            inventoryOut.setStatus("PENDING");
+            inventoryOut.setCreatedAt(new Timestamp(Instant.now().toEpochMilli()));
+            Integer warehouseId = request.getWarehouseId();
+            if (warehouseId != null) {
+                warehouseRepository.findById(warehouseId)
+                    .ifPresent(inventoryOut::setWarehouse);
+            }
         }
         return inventoryOutRepository.save(inventoryOut);
     }
@@ -139,6 +145,9 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public InventoryOut undoOutbound(Integer id) {
+        if (id == null) {
+             throw new IllegalArgumentException("ID cannot be null");
+        }
         InventoryOut inventoryOut = inventoryOutRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Outbound not found with id: " + id));
 

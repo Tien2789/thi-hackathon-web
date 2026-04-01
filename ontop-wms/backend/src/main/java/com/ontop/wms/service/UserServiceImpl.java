@@ -8,7 +8,6 @@ import com.ontop.wms.entity.Warehouse;
 import com.ontop.wms.repository.RoleRepository;
 import com.ontop.wms.repository.UserRepository;
 import com.ontop.wms.repository.WarehouseRepository;
-import com.ontop.wms.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -58,9 +57,10 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
         user.setIsActive(true);
 
-        if (request.getWarehouseId() != null) {
-            Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid warehouse ID: " + request.getWarehouseId()));
+        Integer warehouseId = request.getWarehouseId();
+        if (warehouseId != null) {
+            Warehouse warehouse = warehouseRepository.findById(warehouseId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid warehouse ID: " + warehouseId));
             user.setWarehouse(warehouse);
         }
 
@@ -70,7 +70,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser(Integer  id) {
+    public void deleteUser(Integer id) {
+        if (id == null) {
+            return;
+        }
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
         if ("admin".equals(user.getUsername())) {

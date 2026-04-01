@@ -31,6 +31,9 @@ public class AssetController {
 
     @PostMapping
     public ResponseEntity<Asset> createAsset(@RequestBody Asset asset) {
+        if (asset == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(assetRepository.save(asset));
     }
 

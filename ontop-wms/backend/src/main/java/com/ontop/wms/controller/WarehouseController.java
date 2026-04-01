@@ -51,22 +51,32 @@ public class WarehouseController {
 
     @PostMapping
     public ResponseEntity<Warehouse> createWarehouse(@RequestBody Warehouse warehouse) {
+        if (warehouse == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(warehouseRepository.save(warehouse));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Warehouse> updateWarehouse(@PathVariable Integer id, @RequestBody Warehouse warehouseDetails) {
+        if (id == null) {
+            return ResponseEntity.badRequest().build();
+        }
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Warehouse not found with id: " + id));
 
-        warehouse.setName(warehouseDetails.getName());
-        warehouse.setLocation(warehouseDetails.getLocation());
+        if (warehouseDetails != null) {
+            warehouse.setName(warehouseDetails.getName());
+            warehouse.setLocation(warehouseDetails.getLocation());
+        }
         return ResponseEntity.ok(warehouseRepository.save(warehouse));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWarehouse(@PathVariable Integer id) {
-        warehouseRepository.deleteById(id);
+        if (id != null) {
+            warehouseRepository.deleteById(id);
+        }
         return ResponseEntity.noContent().build();
     }
 
