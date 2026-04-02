@@ -36,7 +36,7 @@ const handleLogin = async () => {
       router.push('/')
     }, 500)
   } catch (error) {
-    console.error('Lỗi đăng nhập:', error)
+    console.error('Lỗi đăng nhập chi tiết:', error.response || error)
     ElMessage.error(error.response?.data?.message || 'Tài khoản hoặc mật khẩu không chính xác')
   } finally {
     loading.value = false

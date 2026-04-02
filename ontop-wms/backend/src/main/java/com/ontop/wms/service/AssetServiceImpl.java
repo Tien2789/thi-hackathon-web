@@ -1,13 +1,15 @@
 package com.ontop.wms.service;
 
-import com.ontop.wms.entity.Asset;
-import com.ontop.wms.repository.AssetRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+
+import org.springframework.stereotype.Service;
+
+import com.ontop.wms.entity.Asset;
+import com.ontop.wms.repository.AssetRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class AssetServiceImpl implements AssetService {
         double baseValue = 1000.0;
         double annualRate = 0.05;
 
-        LocalDateTime start = asset.getCreatedAt() != null ? asset.getCreatedAt().toLocalDateTime() : LocalDateTime.now();
+        LocalDateTime start = asset.getCreatedAt() != null ? asset.getCreatedAt() : LocalDateTime.now();
         long years = ChronoUnit.YEARS.between(start, LocalDateTime.now());
 
         double currentDepreciationValue = baseValue * Math.pow(1 - annualRate, Math.max(0, years));
