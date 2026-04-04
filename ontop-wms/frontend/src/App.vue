@@ -90,7 +90,7 @@ const toggleFullscreen = () => {
              <el-avatar :size="48" src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" class="border border-2 border-primary border-opacity-25" />
              <div class="account-info">
                <p class="mb-0 fw-bold text-white small">{{ username }}</p>
-               <el-tag size="small" type="primary" effect="dark" class="mt-1 border-0 shadow-sm">{{ userRole }}</p>
+               <el-tag size="small" type="primary" effect="dark" class="mt-1 border-0 shadow-sm">{{ userRole }}</el-tag>
              </div>
           </div>
         </div>
