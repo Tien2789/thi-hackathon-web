@@ -1,9 +1,11 @@
 package com.ontop.wms.dto;
 
 import java.util.List;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class InventoryRequest {
@@ -11,45 +13,14 @@ public class InventoryRequest {
     private String issueCode;   // for outbound
     private String status;
     private Integer warehouseId;
+    
+    // Circular 200 Fields
+    private String delivererName;
+    private String receiverName;
+    private String reason;
+    private String documentNumber;
+    private String location;
+    
+    private List<ApproveRequest> details;
     private List<String> signerEmails;
-
-    public String getReceiptCode() {
-        return receiptCode;
-    }
-
-    public void setReceiptCode(String receiptCode) {
-        this.receiptCode = receiptCode;
-    }
-
-    public String getIssueCode() {
-        return issueCode;
-    }
-
-    public void setIssueCode(String issueCode) {
-        this.issueCode = issueCode;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Integer getWarehouseId() {
-        return warehouseId;
-    }
-
-    public void setWarehouseId(Integer warehouseId) {
-        this.warehouseId = warehouseId;
-    }
-
-    public List<String> getSignerEmails() {
-        return signerEmails;
-    }
-
-    public void setSignerEmails(List<String> signerEmails) {
-        this.signerEmails = signerEmails;
-    }
 }

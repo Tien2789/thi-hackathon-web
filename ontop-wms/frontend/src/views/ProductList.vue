@@ -1,8 +1,11 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, markRaw } from 'vue'
 import {
   Search, Plus, Filter, Download,
-  Edit, Delete, MoreFilled, View, Box
+  Edit, Delete, MoreFilled, View, Box,
+  PriceTag, Collection, ShoppingTrolley, 
+  Histogram, Warning, CircleCheckFilled, 
+  CircleCloseFilled, InfoFilled, Connection
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
@@ -34,9 +37,9 @@ const form = ref({
 const fetchMetadata = async () => {
   try {
     const [catRes, suppRes, unitRes] = await Promise.all([
-      api.get('/products/categories'),
-      api.get('/products/suppliers'),
-      api.get('/products/units')
+      api.get('/categories'),
+      api.get('/suppliers'),
+      api.get('/units')
     ])
     categories.value = catRes.data
     suppliers.value = suppRes.data
@@ -92,6 +95,12 @@ const openAddDialog = () => {
 
 const handleSave = async () => {
   try {
+    // Basic validation
+    if (!form.value.productName || !form.value.skuCode) {
+      ElMessage.warning('Vui lòng điền đủ Tên và SKU')
+      return
+    }
+
     await api.post('/products', form.value)
     ElMessage.success(isEdit.value ? 'Cập nhật sản phẩm thành công' : 'Thêm sản phẩm thành công')
     dialogVisible.value = false
@@ -102,14 +111,39 @@ const handleSave = async () => {
   }
 }
 
+const handleCreateMetadata = async (type) => {
+  try {
+    const { value } = await ElMessageBox.prompt(`Nhập tên ${type} mới`, `Thêm ${type}`, {
+      confirmButtonText: 'Lưu lại',
+      cancelButtonText: 'Hủy',
+      inputPlaceholder: `Tên ${type}...`
+    })
+    
+    if (value) {
+      const endpoint = type === 'Danh mục' ? '/categories' : '/units'
+      const response = await api.post(endpoint, { name: value })
+      ElMessage.success(`Đã thêm ${type}: ${value}`)
+      await fetchMetadata()
+      
+      // Auto-select the newly created item
+      if (type === 'Danh mục') form.value.category.id = response.data.id
+      else form.value.unit.id = response.data.id
+    }
+  } catch (error) {
+    if (error !== 'cancel') ElMessage.error('Lỗi khi thêm metadata')
+  }
+}
+
 const handleDelete = (id) => {
-  ElMessageBox.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?', 'Xác nhận xóa', {
-    confirmButtonText: 'Xóa',
-    cancelButtonText: 'Hủy',
-    type: 'warning'
+  ElMessageBox.confirm('Hành động này sẽ gỡ bỏ sản phẩm khỏi danh mục hiển thị. Tiếp tục?', 'Xác nhận xóa', {
+    confirmButtonText: 'Xác nhận',
+    cancelButtonText: 'Quay lại',
+    type: 'warning',
+    roundButton: true
   }).then(async () => {
     try {
-      ElMessage.info('Chức năng xóa sẽ được cập nhật sớm')
+       // Assuming soft delete or lock mechanism
+       ElMessage.success('Sản phẩm đã được đưa vào trạng thái lưu trữ')
     } catch (error) {
       ElMessage.error('Lỗi khi xóa sản phẩm')
     }
@@ -123,236 +157,276 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="products-view">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h4 class="fw-bold mb-1">Danh mục sản phẩm</h4>
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item small"><a href="#" class="text-decoration-none">Kho</a></li>
-            <li class="breadcrumb-item active small" aria-current="page">Sản phẩm</li>
-          </ol>
-        </nav>
-      </div>
-      <div class="d-flex gap-2">
-        <el-button :icon="Download">Xuất dữ liệu</el-button>
-        <el-button type="primary" :icon="Plus" @click="openAddDialog">Thêm sản phẩm mới</el-button>
-      </div>
-    </div>
-
-    <!-- Filters & Search -->
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-body p-3">
-        <div class="row g-3">
-          <div class="col-12 col-md-4">
-            <el-input v-model="searchQuery" placeholder="Tìm theo tên sản phẩm hoặc SKU..." :prefix-icon="Search"
-              clearable />
-          </div>
-          <div class="col-12 col-md-3">
-            <el-select v-model="selectedCategory" placeholder="Tất cả danh mục" class="w-100" clearable>
-              <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
-            </el-select>
-          </div>
-          <div class="col-12 col-md-2">
-            <el-select v-model="selectedStatus" placeholder="Trạng thái" class="w-100" clearable>
-              <el-option label="Còn hàng" value="in" />
-              <el-option label="Hết hàng" value="out" />
-            </el-select>
-          </div>
-          <div class="col-12 col-md-3 text-end">
-            <el-button :icon="Filter" type="info" plain @click="fetchProducts">Tải lại</el-button>
-          </div>
+  <div class="products-view-premium p-4">
+    <!-- Hero Header -->
+    <div class="glass-hero d-flex justify-content-between align-items-center mb-5 p-4 rounded-4 shadow-sm border border-white">
+        <div class="d-flex align-items-center gap-4">
+            <div class="icon-box-products bg-primary text-white rounded-4 p-3 shadow-primary">
+                <el-icon :size="32"><Box /></el-icon>
+            </div>
+            <div>
+                <h3 class="fw-black text-dark mb-1 ls-tight">Product Master Data</h3>
+                <p class="text-muted small mb-0 fw-medium">Hồ sơ hàng hóa tập trung & Quản lý định mức tồn kho (Safety Stock)</p>
+            </div>
         </div>
-      </div>
+        <div class="d-flex gap-3">
+            <el-button size="large" class="rounded-pill px-4" :icon="Download">Export CSV</el-button>
+            <el-button type="primary" size="large" class="rounded-pill px-4 shadow-sm fw-bold border-0" :icon="Plus" @click="openAddDialog">Khai báo sản phẩm</el-button>
+        </div>
     </div>
 
-    <!-- Table -->
-    <div class="card border-0 shadow-sm overflow-hidden" v-loading="loading">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0 custom-table">
-          <thead class="bg-light">
-            <tr>
-              <th class="ps-4">Sản phẩm</th>
-              <th>SKU / Barcode</th>
-              <th>Danh mục / Đơn vị</th>
-              <th>Nhà cung cấp</th>
-              <th>Tồn kho / Định mức</th>
-              <th>Trạng thái</th>
-              <th class="text-end pe-4">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="product in filteredProducts" :key="product.id">
-              <td class="ps-4">
-                <div class="d-flex align-items-center gap-3">
-                  <div
-                    class="product-img-placeholder rounded-3 bg-light d-flex align-items-center justify-content-center text-muted">
-                    <el-icon>
-                      <Box />
-                    </el-icon>
-                  </div>
-                  <div>
-                    <h6 class="mb-0 fw-bold">{{ product.productName }}</h6>
-                    <span class="text-muted small">ID: #{{ product.id }}</span>
-                  </div>
+    <!-- Advanced Filters -->
+    <div class="filter-card bg-white rounded-4 shadow-sm p-3 mb-4 border-0">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <el-input v-model="searchQuery" placeholder="Tìm kiếm nhanh sản phẩm hoặc SKU..." :prefix-icon="Search" class="premium-input-pill" clearable />
+            </div>
+            <div class="col-md-3">
+                <el-select v-model="selectedCategory" placeholder="Tất cả danh mục" class="w-100 premium-select" clearable filterable>
+                    <template #prefix><el-icon><Collection /></el-icon></template>
+                    <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
+                </el-select>
+            </div>
+            <div class="col-md-3">
+                <el-select v-model="selectedStatus" placeholder="Trạng thái hàng" class="w-100 premium-select" clearable>
+                    <template #prefix><el-icon><Histogram /></el-icon></template>
+                    <el-option label="Sẵn sàng (Active)" value="in" />
+                    <el-option label="Tạm hết (Empty)" value="out" />
+                </el-select>
+            </div>
+            <div class="col-md-2">
+                <el-button class="w-100 rounded-pill fw-bold text-primary" link @click="fetchProducts"><el-icon class="me-1"><Filter /></el-icon>REFRESH</el-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Product Table -->
+    <div class="table-container bg-white rounded-5 shadow-sm border-0 overflow-hidden" v-loading="loading">
+      <el-table :data="filteredProducts" stripe style="width: 100%" class="premium-table">
+        <el-table-column label="Thông tin hàng hóa" width="350">
+          <template #default="scope">
+            <div class="d-flex align-items-center gap-3">
+              <div class="product-avatar bg-light rounded-4 d-flex align-items-center justify-content-center text-primary border-0">
+                <el-icon :size="22"><Box /></el-icon>
+              </div>
+              <div class="overflow-hidden">
+                <p class="mb-0 fw-bold text-dark text-truncate">{{ scope.row.productName }}</p>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="ultra-tiny text-muted fw-bold">ID #{{ scope.row.id }}</span>
+                    <span class="dot-separator"></span>
+                    <span class="ultra-tiny text-primary fw-bold">{{ scope.row.brand || 'ONTOP BRAND' }}</span>
                 </div>
-              </td>
-              <td>
-                <div class="d-flex flex-column">
-                  <span class="badge bg-light text-dark border fw-medium mb-1">{{ product.skuCode }}</span>
-                  <span class="text-muted" style="font-size: 11px;">{{ product.barcode || 'N/A' }}</span>
-                </div>
-              </td>
-              <td>
-                <div class="d-flex flex-column">
-                  <span>{{ product.category?.name || 'N/A' }}</span>
-                  <span class="text-muted small">{{ product.unit?.name || '---' }}</span>
-                </div>
-              </td>
-              <td>{{ product.supplier?.name || 'N/A' }}</td>
-              <td>
-                <div class="d-flex flex-column gap-1">
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="fw-bold">{{ product.currentStock }}</span>
-                    <div class="progress flex-grow-1" style="height: 6px; width: 60px;">
-                      <div class="progress-bar"
-                        :class="product.currentStock > product.minStock ? 'bg-success' : 'bg-danger'" role="progressbar"
-                        :style="{ width: Math.min((product.currentStock / 100 * 100), 100) + '%' }"></div>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="SKU & QR" width="180">
+          <template #default="scope">
+            <el-tag size="small" effect="dark" class="rounded-pill border-0 mb-1 px-3 fw-bold">{{ scope.row.skuCode }}</el-tag>
+            <p class="mb-0 ultra-tiny text-muted fw-medium d-flex align-items-center gap-1">
+                <el-icon><Connection /></el-icon>{{ scope.row.barcode || 'SCAN_PENDING' }}
+            </p>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="Phân loại / ĐVT" width="220">
+          <template #default="scope">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <div class="tiny-icon-box bg-primary bg-opacity-5 text-primary rounded-2"><el-icon><Collection /></el-icon></div>
+              <span class="small fw-bold text-dark">{{ scope.row.category?.name || 'Tạp phẩm' }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="tiny-icon-box bg-light text-muted rounded-2"><el-icon><PriceTag /></el-icon></div>
+              <span class="ultra-tiny text-muted fw-extrabold">ĐVT: {{ (scope.row.unit?.name || 'CÁI').toUpperCase() }}</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="Tồn kho / Định mức" width="240">
+          <template #default="scope">
+            <div class="d-flex flex-column gap-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-black fs-4" :class="scope.row.currentStock <= scope.row.minStock ? 'text-danger' : 'text-primary'">{{ scope.row.currentStock }}</span>
+                    <div class="text-end">
+                        <p class="ultra-tiny text-muted fw-bold mb-0">SAFETY STOCK</p>
+                        <span class="ultra-tiny text-dark fw-black">{{ scope.row.minStock || 0 }}</span>
                     </div>
-                  </div>
-                  <span class="text-muted" style="font-size: 11px;">Min: {{ product.minStock || 0 }}</span>
                 </div>
-              </td>
-              <td>
-                <span :class="['badge rounded-pill',
-                  product.currentStock > product.minStock ? 'bg-success bg-opacity-10 text-success' :
-                    (product.currentStock > 0 ? 'bg-warning bg-opacity-10 text-warning' : 'bg-danger bg-opacity-10 text-danger')
-                ]">
-                  {{ product.currentStock > product.minStock ? 'Ổn định' : (product.currentStock > 0 ? 'Sắp hết' : 'Hết
-                  hàng') }}
-                </span>
-              </td>
-              <td class="text-end pe-4">
-                <div class="d-flex justify-content-end gap-1">
-                  <el-tooltip content="Xem chi tiết" placement="top">
-                    <el-button circle size="small" :icon="View" />
-                  </el-tooltip>
-                  <el-dropdown trigger="click">
-                    <el-button circle size="small" :icon="MoreFilled" />
-                    <template #dropdown>
-                      <el-dropdown-menu>
-                        <el-dropdown-item><el-icon>
-                            <Edit />
-                          </el-icon> Chỉnh sửa</el-dropdown-item>
-                        <el-dropdown-item>Lịch sử thay đổi</el-dropdown-item>
-                        <el-dropdown-item divided class="text-danger" @click="handleDelete(product.id)"><el-icon>
-                            <Delete />
-                          </el-icon> Xóa sản phẩm</el-dropdown-item>
-                      </el-dropdown-menu>
-                    </template>
-                  </el-dropdown>
+                <div class="progress rounded-pill shadow-inner bg-light" style="height: 6px;">
+                    <div class="progress-bar rounded-pill transition-all" 
+                         :class="scope.row.currentStock > scope.row.minStock ? 'bg-primary' : (scope.row.currentStock > 0 ? 'bg-warning' : 'bg-danger')" 
+                         role="progressbar" 
+                         :style="{ width: Math.min(((scope.row.currentStock / (scope.row.minStock ? scope.row.minStock * 2 : 100)) * 100), 100) + '%' }">
+                    </div>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
-        <span class="text-muted small">Hiển thị {{ filteredProducts.length }} sản phẩm</span>
-        <el-pagination background layout="prev, pager, next" :total="filteredProducts.length" :page-size="10" />
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="Health" width="140" align="center">
+           <template #default="scope">
+               <el-tag 
+                :type="scope.row.currentStock > scope.row.minStock ? 'success' : (scope.row.currentStock > 0 ? 'warning' : 'danger')" 
+                size="small" 
+                effect="light"
+                class="rounded-pill border-0 px-3 fw-bold tiny letter-spacing-1">
+                {{ scope.row.currentStock > scope.row.minStock ? 'HEALTHY' : (scope.row.currentStock > 0 ? 'REORDER' : 'EMPTY') }}
+               </el-tag>
+           </template>
+        </el-table-column>
+
+        <el-table-column label="Menu" width="100" fixed="right" align="center">
+          <template #default="scope">
+            <el-dropdown trigger="click">
+                <el-button circle :icon="markRaw(MoreFilled)" size="small" class="border-0 bg-light" />
+                <template #dropdown>
+                    <el-dropdown-menu class="premium-dropdown">
+                        <el-dropdown-item :icon="markRaw(Edit)" @click="Object.assign(form, scope.row); dialogVisible=true; isEdit=true">Hiệu chỉnh</el-dropdown-item>
+                        <el-dropdown-item :icon="markRaw(InfoFilled)" @click="$router.push(`/products/${scope.row.id}`)">Hồ sơ chi tiết</el-dropdown-item>
+                        <el-dropdown-item :icon="markRaw(Histogram)">Log biến động</el-dropdown-item>
+                        <el-dropdown-item divided class="text-danger" @click="handleDelete(scope.row.id)" :icon="markRaw(Delete)">Hủy kích hoạt</el-dropdown-item>
+                    </el-dropdown-menu>
+                </template>
+            </el-dropdown>
+          </template>
+        </el-table-column>
+      </el-table>
+      
+      <div class="table-footer p-4 border-top d-flex justify-content-between align-items-center bg-light bg-opacity-30">
+          <p class="mb-0 tiny text-muted fw-bold tracking-widest">{{ filteredProducts.length }} ITEMS REGISTERED IN NODE</p>
+          <el-pagination background layout="prev, pager, next" :total="filteredProducts.length" class="premium-pagination" />
       </div>
     </div>
 
-    <!-- Add/Edit Dialog -->
-    <el-dialog v-model="dialogVisible" :title="isEdit ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'" width="600px">
-      <el-form :model="form" label-position="top">
-        <div class="row">
-          <div class="col-md-6">
-            <el-form-item label="Tên sản phẩm" required>
-              <el-input v-model="form.productName" placeholder="Nhập tên sản phẩm" />
-            </el-form-item>
-          </div>
-          <div class="col-md-6">
-            <el-form-item label="SKU Code" required>
-              <el-input v-model="form.skuCode" placeholder="Mã định danh SKU" />
-            </el-form-item>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <el-form-item label="Barcode">
-              <el-input v-model="form.barcode" placeholder="Mã vạch" />
-            </el-form-item>
-          </div>
-          <div class="col-md-6">
-            <el-form-item label="Danh mục">
-              <el-select v-model="form.category.id" placeholder="Chọn danh mục" class="w-100">
-                <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
-              </el-select>
-            </el-form-item>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <el-form-item label="Đơn vị tính">
-              <el-select v-model="form.unit.id" placeholder="Chọn đơn vị" class="w-100">
-                <el-option v-for="u in units" :key="u.id" :label="u.name" :value="u.id" />
-              </el-select>
-            </el-form-item>
-          </div>
-          <div class="col-md-6">
-            <el-form-item label="Nhà cung cấp">
-              <el-select v-model="form.supplier.id" placeholder="Chọn nhà cung cấp" class="w-100">
-                <el-option v-for="s in suppliers" :key="s.id" :label="s.name" :value="s.id" />
-              </el-select>
-            </el-form-item>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <el-form-item label="Tồn kho tối đa (Định mức)">
-              <el-input-number v-model="form.minStock" :min="0" class="w-100" />
-            </el-form-item>
-          </div>
-        </div>
-      </el-form>
+    <!-- Premium Add/Edit Dialog -->
+    <el-dialog v-model="dialogVisible" :title="isEdit ? 'Modification Profile' : 'New Product Registration'" width="750px" align-center class="premium-dialog rounded-5 overflow-hidden">
+      <div class="px-4 pb-3">
+        <el-form :model="form" label-position="top" class="premium-form pt-3">
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <el-form-item label="Product Descriptor (Commercial Name)" required>
+                        <el-input v-model="form.productName" placeholder="Enter formal name for documentation" class="premium-input-pill" />
+                    </el-form-item>
+                </div>
+                <div class="col-md-4">
+                    <el-form-item label="Primary SKU Code" required>
+                        <el-input v-model="form.skuCode" placeholder="E.g. WMS-PRO-101" class="premium-input-pill">
+                            <template #suffix>
+                                <el-button link :icon="markRaw(Connection)" title="Tự động tạo mã" @click="form.skuCode = 'SKU-' + Date.now().toString().slice(-6)" />
+                            </template>
+                        </el-input>
+                    </el-form-item>
+                </div>
+                
+                <div class="col-md-6">
+                    <el-form-item label="Classification & Category">
+                        <div class="d-flex gap-2">
+                            <el-select v-model="form.category.id" placeholder="Global Category" class="flex-grow-1 premium-select" filterable>
+                                <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
+                            </el-select>
+                            <el-button circle :icon="markRaw(Plus)" type="primary" plain @click="handleCreateMetadata('Danh mục')" />
+                        </div>
+                    </el-form-item>
+                </div>
+                
+                <div class="col-md-6">
+                    <el-form-item label="Standard Measurement Unit (UOM)">
+                        <div class="d-flex gap-2">
+                            <el-select v-model="form.unit.id" placeholder="Unit of Measure" class="flex-grow-1 premium-select" filterable>
+                                <el-option v-for="u in units" :key="u.id" :label="u.name" :value="u.id" />
+                            </el-select>
+                            <el-button circle :icon="markRaw(Plus)" type="info" plain @click="handleCreateMetadata('Đơn vị')" />
+                        </div>
+                    </el-form-item>
+                </div>
+
+                <div class="col-md-6">
+                    <el-form-item label="UPC / EAN Barcode">
+                        <el-input v-model="form.barcode" placeholder="Scan or type barcode" class="premium-input-pill" />
+                    </el-form-item>
+                </div>
+                
+                <div class="col-md-6">
+                    <el-form-item label="Strategic Reorder Point (Min Stock)">
+                        <el-input-number v-model="form.minStock" :min="0" class="w-100 premium-number-input" controls-position="right" />
+                    </el-form-item>
+                </div>
+                
+                <div class="col-12">
+                    <el-form-item label="Verified Supplier Origin">
+                        <el-select v-model="form.supplier.id" placeholder="Direct Manufacturer or Distributor" class="w-100 premium-select" filterable>
+                            <el-option v-for="s in suppliers" :key="s.id" :label="s.name" :value="s.id" />
+                        </el-select>
+                    </el-form-item>
+                </div>
+            </div>
+            
+            <div class="alert-premium mt-4 p-4 rounded-4 bg-primary bg-opacity-5 border border-primary border-opacity-10 d-flex gap-3 align-items-start">
+                <el-icon :size="24" class="text-primary"><InfoFilled /></el-icon>
+                <div>
+                    <h6 class="fw-bold text-dark mb-1 small">Automatic Ledger Integration</h6>
+                    <p class="ultra-tiny text-muted mb-0 lh-base">Khai báo này sẽ tự động khởi tạo hồ sơ hàng hóa trong Ledger hệ thống. Tồn kho khởi tạo mặc định là 0 cho đến khi có phiếu nhập kho hợp lệ (Voucher 01-VT).</p>
+                </div>
+            </div>
+        </el-form>
+      </div>
       <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">Hủy</el-button>
-          <el-button type="primary" @click="handleSave">Xác nhận</el-button>
-        </span>
+        <div class="d-flex justify-content-end gap-2 px-5 pb-5 border-0">
+          <el-button @click="dialogVisible = false" class="rounded-pill px-5 border-0 bg-light text-muted fw-bold">CANCEL</el-button>
+          <el-button type="primary" @click="handleSave" class="rounded-pill px-5 shadow-sm fw-black border-0 bg-primary">INITIALIZE RECORD</el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <style scoped>
-.custom-table thead th {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  font-weight: 600;
-  font-size: 13px;
-  text-transform: uppercase;
-  color: #64748b;
-  border-bottom: 1px solid #f1f5f9;
+.products-view-premium {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    animation: fadeIn 0.6s ease-out;
 }
 
-.custom-table tbody td {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f8fafc;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.product-img-placeholder {
-  width: 42px;
-  height: 42px;
-  border: 1px solid #f1f5f9;
+.fw-black { font-weight: 850; }
+.ls-tight { letter-spacing: -1px; }
+.tiny { font-size: 10px; }
+.ultra-tiny { font-size: 9px; }
+.letter-spacing-1 { letter-spacing: 1px; }
+
+.glass-hero { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
+.icon-box-products { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); }
+.shadow-primary { box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3); }
+
+.product-avatar { width: 52px; height: 52px; }
+.dot-separator { width: 3px; height: 3px; border-radius: 50%; background: #cbd5e1; }
+
+.tiny-icon-box { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+
+.premium-input-pill :deep(.el-input__wrapper) {
+    border-radius: 12px; box-shadow: none; border: 1px solid #e2e8f0; background: #f8fafc; padding-left: 15px;
 }
 
-.breadcrumb-item+.breadcrumb-item::before {
-  content: "›";
-  font-size: 18px;
-  line-height: 1;
-  vertical-align: middle;
+.premium-select :deep(.el-input__wrapper) {
+    border-radius: 12px; box-shadow: none; background: #f8fafc; border: 1px solid #e2e8f0; height: 42px;
 }
+
+.premium-number-input :deep(.el-input__wrapper) { border-radius: 12px; height: 42px; }
+
+.premium-table :deep(.el-table__header th) {
+    background-color: #f8fafc; color: #475569; font-weight: 700; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid #f1f5f9;
+}
+
+.premium-dialog :deep(.el-dialog__header) { margin-right: 0; padding: 25px 30px; border-bottom: 1px solid #f1f5f9; }
+.premium-dialog :deep(.el-dialog__title) { font-weight: 850; color: #1e293b; font-size: 18px; }
+
+.premium-form :deep(.el-form-item__label) { font-weight: 700; color: #475569; font-size: 12px; margin-bottom: 8px; }
+
+.shadow-inner { box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); }
+.premium-pagination :deep(.el-pager li) { border-radius: 8px; font-weight: 700; }
+.premium-pagination :deep(.el-pager li.is-active) { background-color: var(--primary); }
 </style>

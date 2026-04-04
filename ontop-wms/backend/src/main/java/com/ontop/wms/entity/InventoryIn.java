@@ -29,6 +29,15 @@ public class InventoryIn {
     @Column(unique = true, nullable = false)
     private String receiptCode;
 
+    @Column(name = "deliverer_name")
+    private String delivererName;
+
+    @Column(name = "document_number")
+    private String documentNumber;
+
+    @Column(name = "location")
+    private String location;
+
     @Column
     private String status = "PENDING";
 

@@ -12,6 +12,7 @@ public class UserDTO {
     private String username;
     private RoleDTO role;
     private WarehouseDTO warehouse;
+    private Boolean isActive; // Added for frontend status rendering
 
     @Data
     @NoArgsConstructor
