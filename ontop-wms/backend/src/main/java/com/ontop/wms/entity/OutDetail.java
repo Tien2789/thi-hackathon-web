@@ -1,5 +1,7 @@
 package com.ontop.wms.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,6 +30,15 @@ public class OutDetail {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Column(name = "requested_quantity")
+    private Integer requestedQuantity = 0;
+
+    @Column(name = "actual_quantity")
+    private Integer actualQuantity = 0;
+
+    @Column(name = "unit_price")
+    private BigDecimal unitPrice;
+
     @Column
-    private Integer quantity = 0;
+    private Integer quantity = 0; // Keeping this for backward compatibility if needed, or remove later
 }

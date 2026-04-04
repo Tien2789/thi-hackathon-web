@@ -63,6 +63,9 @@ public class Product {
     @Column(name = "min_stock")
     private Integer minStock = 0;
 
+    @Column(name = "storage_limit_months")
+    private Integer storageLimitMonths = 6;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

@@ -1,6 +1,7 @@
 package com.ontop.wms.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,6 +34,15 @@ public class InDetail {
     @Column
     private Integer quantity = 0;
 
-    @Column
+    @Column(name = "unit_price")
     private BigDecimal unitPrice;
+
+    @Column(name = "manufacturing_date")
+    private LocalDate manufacturingDate;
+
+    @Column(name = "expiry_date")
+    private LocalDate expiryDate;
+
+    @Column(name = "remaining_quantity")
+    private Integer remainingQuantity;
 }

@@ -29,6 +29,15 @@ public class InventoryOut {
     @Column(unique = true, nullable = false)
     private String issueCode;
 
+    @Column(name = "receiver_name")
+    private String receiverName;
+
+    @Column(name = "reason")
+    private String reason;
+
+    @Column(name = "document_number")
+    private String documentNumber;
+
     @Column
     private String status = "PENDING";
 

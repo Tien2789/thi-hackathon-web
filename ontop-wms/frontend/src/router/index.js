@@ -12,6 +12,9 @@ const routes = [
   { path: '/reports', component: () => import('../views/Reports.vue'), meta: { roles: ['ADMIN', 'MANAGER'] } },
   { path: '/users', component: () => import('../views/UserManagement.vue'), meta: { roles: ['ADMIN'] } },
   { path: '/profile', component: () => import('../views/Login.vue'), props: { mode: 'profile' } },
+  
+  // Public Signature Landing
+  { path: '/signature/:token', component: () => import('../views/SignatureLanding.vue') },
 ]
 
 export const router = createRouter({
@@ -22,6 +25,12 @@ export const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   const userRole = localStorage.getItem('userRole')
+
+  // Allow public signature page
+  if (to.path.startsWith('/signature/')) {
+    next()
+    return
+  }
 
   // 1. Tránh truy cập trang bảo mật khi chưa đăng nhập
   if (to.path !== '/login' && !token) {
@@ -37,10 +46,7 @@ router.beforeEach((to, from, next) => {
 
   // 3. Kiểm tra phân quyền (RBAC)
   if (to.meta.roles && !to.meta.roles.includes(userRole)) {
-    // Nếu không có quyền, chuyển về Dashboard thay vì để kẹt
     if (to.path === '/') {
-      // Nếu chính trang chủ cũng không vào được (do userRole null/sai), đẩy về login
-      // FIX: Xóa token để tránh vòng lặp vô hạn (Login -> Home -> Login)
       localStorage.removeItem('token')
       localStorage.removeItem('userRole')
       next('/login')
@@ -54,5 +60,3 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router;
-
-//

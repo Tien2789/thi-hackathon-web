@@ -68,18 +68,21 @@ public class UserServiceImpl implements UserService {
         return convertToDto(savedUser);
     }
 
+
     @Override
     @Transactional
-    public void deleteUser(Integer id) {
-        if (id == null) {
-            return;
-        }
+    public void lockUser(Integer id) { 
+        if (id == null) return;
+        
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+        
         if ("admin".equals(user.getUsername())) {
-            throw new IllegalArgumentException("Cannot delete admin user");
+            throw new IllegalArgumentException("Cannot lock the root admin account");
         }
-        userRepository.deleteById(id);
+        
+        user.setIsActive(user.getIsActive() == null || !user.getIsActive());
+        userRepository.save(user);
     }
 
     private UserDTO convertToDto(User user) {
@@ -89,7 +92,8 @@ public class UserServiceImpl implements UserService {
                 user.getId(),
                 user.getUsername(),
                 roleDTO,
-                warehouseDTO
+                warehouseDTO,
+                user.getIsActive() == null || user.getIsActive()
         );
     }
 }
