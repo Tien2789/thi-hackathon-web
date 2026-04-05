@@ -5,7 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   ShoppingCart, Plus, Delete, Check, Search, 
   Box, UserFilled, Connection, Timer, 
-  MagicStick, WarningFilled, DocumentOutlined,
+  MagicStick, WarningFilled, Document,
   Sell
 } from '@element-plus/icons-vue'
 
@@ -152,7 +152,7 @@ onMounted(() => {
                                <el-icon class="text-danger"><Timer /></el-icon>
                                <span class="text-muted ultra-tiny fw-bold">Release: {{ v.releaseDate }}</span>
                            </div>
-                           <el-button type="danger" link icon="DocumentOutlined" size="small" class="fw-bold">XUẤT FILE</el-button>
+                           <el-button type="danger" link icon="Document" size="small" class="fw-bold">XUẤT FILE</el-button>
                         </div>
                     </div>
                 </div>

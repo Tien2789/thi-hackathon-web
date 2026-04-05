@@ -76,12 +76,12 @@ onMounted(() => {
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-end mb-5">
       <div>
-        <h2 class="fw-black text-dark mb-1 tracking-tight">System Overview</h2>
-        <p class="text-muted mb-0 small fw-medium">Real-time warehouse health & inventory analytics</p>
+        <h2 class="fw-black text-dark mb-1 tracking-tight">Tổng quan hệ thống</h2>
+        <p class="text-muted mb-0 small fw-medium">Phân tích sức khỏe kho & tồn kho theo thời gian thực</p>
       </div>
       <div class="d-flex gap-2 p-1 bg-white rounded-pill shadow-sm border">
-        <el-button type="primary" link class="px-4 py-2 small fw-bold">Live Feed</el-button>
-        <el-button type="info" link class="px-4 py-2 small fw-bold text-muted">History</el-button>
+        <el-button type="primary" link class="px-4 py-2 small fw-bold">Dữ liệu trực tiếp</el-button>
+        <el-button type="info" link class="px-4 py-2 small fw-bold text-muted">Lịch sử</el-button>
       </div>
     </div>
 
@@ -117,7 +117,7 @@ onMounted(() => {
         <div class="analytics-card bg-white rounded-4 shadow-sm border-0 h-100 overflow-hidden">
           <div class="p-4 d-flex justify-content-between align-items-center">
             <div>
-              <h5 class="fw-bold text-dark mb-1">Inventory Performance</h5>
+              <h5 class="fw-bold text-dark mb-1">Hiệu xuất Tồn kho</h5>
               <p class="text-muted tiny mb-0">Aggregate throughput across all nodes</p>
             </div>
             <el-select v-model="timeRange" class="premium-select" style="width: 130px">
@@ -133,11 +133,11 @@ onMounted(() => {
             
             <div class="row mt-4 pt-2 border-top g-4">
                <div class="col-4 text-center">
-                  <p class="text-muted tiny fw-bold mb-1">ACCURACY</p>
+                  <p class="text-muted tiny fw-bold mb-1">CHÍNH XÁC</p>
                   <h5 class="fw-bold text-success mb-0">99.8%</h5>
                </div>
                <div class="col-4 text-center border-start border-end">
-                  <p class="text-muted tiny fw-bold mb-1">AVRG LOAD</p>
+                  <p class="text-muted tiny fw-bold mb-1">TẢI TB</p>
                   <h5 class="fw-bold text-primary mb-0">2.4s</h5>
                </div>
                <div class="col-4 text-center">
@@ -153,7 +153,7 @@ onMounted(() => {
       <div class="col-12 col-lg-4">
         <div class="activity-card bg-white rounded-4 shadow-sm border-0 h-100 flex-column overflow-hidden">
           <div class="p-4 d-flex justify-content-between align-items-center border-bottom border-light">
-             <h5 class="fw-bold text-dark mb-0">Operational Logs</h5>
+             <h5 class="fw-bold text-dark mb-0">Nhật ký vận hành</h5>
              <el-button circle :icon="MoreFilled" size="small" type="info" link />
           </div>
           
@@ -173,7 +173,7 @@ onMounted(() => {
           </div>
           
           <div class="p-3 bg-light bg-opacity-50 text-center">
-             <el-button type="primary" link class="fw-bold small">VIEW FULL AUDIT TRAIL</el-button>
+             <el-button type="primary" link class="fw-bold small">XEM TOÀN BỘ NHẬT KÝ</el-button>
           </div>
         </div>
       </div>

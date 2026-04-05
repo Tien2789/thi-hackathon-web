@@ -90,20 +90,20 @@ const toggleFullscreen = () => {
              <el-avatar :size="48" src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" class="border border-2 border-primary border-opacity-25" />
              <div class="account-info">
                <p class="mb-0 fw-bold text-white small">{{ username }}</p>
-               <el-tag size="small" type="primary" effect="dark" class="mt-1 border-0 shadow-sm">{{ userRole }}</p>
+               <el-tag size="small" type="primary" effect="dark" class="mt-1 border-0 shadow-sm">{{ userRole }}</el-tag>
              </div>
           </div>
         </div>
 
         <div class="sidebar-navigation flex-grow-1 overflow-auto custom-scrollbar px-2">
           <el-menu :default-active="route.path" router :collapse="isCollapse" class="border-0 bg-transparent main-navigation">
-            <div class="nav-section-label px-3" v-if="!isCollapse">Overview</div>
+            <div class="nav-section-label px-3" v-if="!isCollapse">Tổng quan</div>
             <el-menu-item index="/">
               <el-icon><PieChart /></el-icon>
-              <template #title><span>Dashboard</span></template>
+              <template #title><span>Bảng điều khiển</span></template>
             </el-menu-item>
 
-            <div class="nav-section-label px-3" v-if="!isCollapse">Operations</div>
+            <div class="nav-section-label px-3" v-if="!isCollapse">Vận hành</div>
             
             <el-menu-item index="/inbound">
               <el-icon><Van /></el-icon>
@@ -124,7 +124,7 @@ const toggleFullscreen = () => {
               <el-menu-item v-if="['ADMIN', 'MANAGER'].includes(userRole)" index="/warehouses">Cơ cấu kho</el-menu-item>
             </el-sub-menu>
 
-            <div class="nav-section-label px-3" v-if="!isCollapse && ['ADMIN', 'MANAGER'].includes(userRole)">System</div>
+            <div class="nav-section-label px-3" v-if="!isCollapse && ['ADMIN', 'MANAGER'].includes(userRole)">Hệ thống</div>
             
             <el-menu-item index="/assets">
               <el-icon><Files /></el-icon>
@@ -136,7 +136,7 @@ const toggleFullscreen = () => {
               <template #title><span>Báo cáo</span></template>
             </el-menu-item>
 
-            <el-menu-item v-if="userRole === 'ADMIN'" index="/users">
+            <el-menu-item v-if="['ADMIN', 'MANAGER'].includes(userRole)" index="/users">
               <el-icon><UserFilled /></el-icon>
               <template #title><span>Nhân sự</span></template>
             </el-menu-item>
@@ -147,8 +147,8 @@ const toggleFullscreen = () => {
           <div class="system-status glass-blur rounded-4 p-3 border border-white border-opacity-10 d-flex align-items-center gap-3">
              <div class="pulse-indicator"></div>
              <div>
-                <p class="mb-0 text-white fw-bold tiny">SYSTEM ONLINE</p>
-                <p class="mb-0 text-muted ultra-tiny">Sync: Just now</p>
+                <p class="mb-0 text-white fw-bold tiny">HỆ THỐNG HOẠT ĐỘNG</p>
+                <p class="mb-0 text-muted ultra-tiny">Đồng bộ: Vừa xong</p>
              </div>
           </div>
         </div>
@@ -180,7 +180,7 @@ const toggleFullscreen = () => {
                 <el-avatar :size="32" src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" />
                 <div class="d-none d-sm-block">
                   <p class="mb-0 fw-bold small text-dark" style="line-height: 1.1">{{ username }}</p>
-                  <p class="mb-0 text-muted ultra-tiny">{{ warehouseName || 'System Admin' }}</p>
+                  <p class="mb-0 text-muted ultra-tiny">{{ warehouseName || 'Quản trị hệ thống' }}</p>
                 </div>
               </div>
               <template #dropdown>
@@ -278,9 +278,14 @@ body {
   transition: all 0.3s;
 }
 
-.main-navigation .el-menu-item:hover {
+.main-navigation .el-menu-item:hover,
+.main-navigation .el-sub-menu__title:hover {
   background: rgba(255, 255, 255, 0.05) !important;
   color: #fff !important;
+}
+
+.main-navigation .el-menu--inline {
+  background: transparent !important;
 }
 
 .main-navigation .el-menu-item.is-active {

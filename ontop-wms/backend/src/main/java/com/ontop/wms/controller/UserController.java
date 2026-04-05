@@ -25,9 +25,9 @@ public class UserController {
 
     private final UserService userService;
 
-    // Chỉ ADMIN mới được lấy danh sách tất cả người dùng
+    // ADMIN và MANAGER được lấy danh sách người dùng
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/lock")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Void> lockUser(@PathVariable Integer id) {
         userService.lockUser(id);
         return ResponseEntity.ok().build();

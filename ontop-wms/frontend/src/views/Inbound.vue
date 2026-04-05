@@ -5,7 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   Van, Plus, Delete, Check, Search, 
   Box, UserFilled, Connection, Timer, 
-  MagicStick, WarningFilled, DocumentOutlined 
+  MagicStick, WarningFilled, Document 
 } from '@element-plus/icons-vue'
 
 const vouchers = ref([])
@@ -175,7 +175,7 @@ onMounted(() => {
                                <el-icon class="text-success"><Timer /></el-icon>
                                <span class="text-muted ultra-tiny fw-bold">Duyệt lúc: {{ v.receiveDate }}</span>
                            </div>
-                           <el-button type="primary" link icon="DocumentOutlined" size="small" class="fw-bold">XEM PHIẾU</el-button>
+                           <el-button type="primary" link icon="Document" size="small" class="fw-bold">XEM PHIẾU</el-button>
                         </div>
                     </div>
                 </div>

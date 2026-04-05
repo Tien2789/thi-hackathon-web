@@ -79,10 +79,14 @@ const handleToggleLock = (user) => {
     })
 }
 
+const userRole = localStorage.getItem('userRole')
+
 onMounted(() => {
     fetchUsers()
-    fetchRoles()
     fetchWarehouses()
+    if (userRole === 'ADMIN') {
+        fetchRoles()
+    }
 })
 </script>
 
@@ -101,7 +105,7 @@ onMounted(() => {
             </div>
             <div class="d-flex gap-3">
                 <el-input placeholder="Tìm nhanh nhân viên..." :prefix-icon="Search" style="width: 250px" class="premium-search" />
-                <el-button type="primary" size="large" class="rounded-pill px-4 shadow-sm" :icon="Plus" @click="dialogVisible = true">Thêm nhân sự mới</el-button>
+                <el-button v-if="userRole === 'ADMIN'" type="primary" size="large" class="rounded-pill px-4 shadow-sm" :icon="Plus" @click="dialogVisible = true">Thêm nhân sự mới</el-button>
             </div>
         </div>
 

@@ -75,12 +75,12 @@ onMounted(() => {
                 <el-icon :size="32"><DataLine /></el-icon>
             </div>
             <div>
-                <h3 class="fw-black text-dark mb-1 ls-tight">Operational Intelligence</h3>
+                <h3 class="fw-black text-dark mb-1 ls-tight">Báo cáo Vận Hành</h3>
                 <p class="text-muted small mb-0 fw-medium">Phân tích hiệu năng vận hành và báo cáo tuân thủ thông tư 200/2014/TT-BTC</p>
             </div>
         </div>
         <div class="d-flex gap-3">
-            <el-button size="large" class="rounded-pill px-4" :icon="PieChart">AI Insight</el-button>
+            <el-button size="large" class="rounded-pill px-4" :icon="PieChart">Góc nhìn AI</el-button>
             <el-button type="primary" size="large" class="rounded-pill px-4 shadow-sm fw-bold" :icon="Plus">Tạo báo cáo</el-button>
         </div>
     </div>
@@ -89,7 +89,7 @@ onMounted(() => {
         <!-- Distribution Analytics -->
         <div class="col-12 col-xl-4">
             <div class="distribution-card bg-white rounded-4 shadow-sm border-0 p-4 h-100">
-                <h5 class="fw-bold text-dark mb-4">Stock Distribution</h5>
+                <h5 class="fw-bold text-dark mb-4">Phân bố tồn kho</h5>
                 <div class="chart-box d-flex justify-content-center">
                     <VueApexCharts :options="donutOptions" :series="donutSeries" type="donut" height="320" />
                 </div>
@@ -128,7 +128,7 @@ onMounted(() => {
                 <div class="col-6">
                     <div class="mini-kpi p-3 rounded-4 bg-white shadow-sm border-0 d-flex align-items-center gap-3">
                          <div class="mini-icon rounded-circle bg-warning bg-opacity-10 text-warning p-2"><el-icon><Timer /></el-icon></div>
-                         <div><p class="ultra-tiny text-muted fw-bold mb-0">PICKING TIME</p><h5 class="fw-black text-dark mb-0 ls-tight">14m</h5></div>
+                         <div><p class="ultra-tiny text-muted fw-bold mb-0">THỜI GIAN CHỌN</p><h5 class="fw-black text-dark mb-0 ls-tight">14m</h5></div>
                     </div>
                 </div>
                 <div class="col-6">
@@ -145,7 +145,7 @@ onMounted(() => {
     <div class="report-main-card bg-white rounded-4 shadow-sm border-0 overflow-hidden mb-5">
         <div class="p-4 d-flex justify-content-between align-items-center border-bottom bg-light bg-opacity-30">
             <h5 class="fw-bold text-dark mb-0 ls-tight">Theo dõi Biến động Tồn kho & Định mức</h5>
-            <el-button type="info" link :icon="Histogram" class="fw-bold tiny">EXCEL EXPORT</el-button>
+            <el-button type="info" link :icon="Histogram" class="fw-bold tiny">Xuất báo cáo Excel</el-button>
         </div>
         <el-table :data="inventoryStatus" stripe class="premium-table">
             <el-table-column label="Sản phẩm" width="300">

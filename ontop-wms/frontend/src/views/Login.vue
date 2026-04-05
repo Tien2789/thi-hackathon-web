@@ -77,10 +77,10 @@ const handleLogin = async () => {
                 </p>
                 <div class="badge-stack d-flex gap-4">
                     <div class="glass-pill rounded-pill px-4 py-2 text-white small border border-white border-opacity-10 d-flex align-items-center gap-2">
-                        <el-icon><SuccessFilled /></el-icon> ISO 27001 Certified
+                        <el-icon><SuccessFilled /></el-icon> Chứng nhận ISO 27001
                     </div>
                     <div class="glass-pill rounded-pill px-4 py-2 text-white small border border-white border-opacity-10 d-flex align-items-center gap-2">
-                        <el-icon><WarningFilled /></el-icon> Zero Trust Security
+                        <el-icon><WarningFilled /></el-icon> Bảo mật Zero Trust
                     </div>
                 </div>
             </div>
@@ -98,14 +98,14 @@ const handleLogin = async () => {
 
                     <form @submit.prevent="handleLogin" class="d-grid gap-4">
                         <div class="field-wrapper">
-                            <label class="ultra-tiny fw-bold text-muted text-uppercase mb-2 tracking-wider ps-1">User Identifier</label>
+                            <label class="ultra-tiny fw-bold text-muted text-uppercase mb-2 tracking-wider ps-1">Tài khoản người dùng</label>
                             <el-input v-model="loginForm.username" placeholder="Sử dụng tên đăng nhập hoặc email" :prefix-icon="User" class="auth-input-pill" />
                         </div>
 
                         <div class="field-wrapper">
                             <div class="d-flex justify-content-between px-1 mb-2">
-                                <label class="ultra-tiny fw-bold text-muted text-uppercase tracking-wider">Access Secret</label>
-                                <a href="#" class="ultra-tiny fw-bold text-primary text-decoration-none">Lost data?</a>
+                                <label class="ultra-tiny fw-bold text-muted text-uppercase tracking-wider">Mật khẩu</label>
+                                <a href="#" class="ultra-tiny fw-bold text-primary text-decoration-none">Quên mật khẩu?</a>
                             </div>
                             <el-input v-model="loginForm.password" :type="showPassword ? 'text' : 'password'" placeholder="Mật khẩu bảo mật" :prefix-icon="Lock" class="auth-input-pill">
                                 <template #suffix>
@@ -127,7 +127,7 @@ const handleLogin = async () => {
                     </form>
 
                     <div class="mt-5 pt-4 text-center border-top border-light opacity-50">
-                        <p class="ultra-tiny text-muted fw-bold">ONTOP LOGISTICS • SECURED GATEWAY 2.0</p>
+                        <p class="ultra-tiny text-muted fw-bold">ONTOP LOGISTICS • CỔNG BẢO MẬT 2.0</p>
                     </div>
                 </div>
             </div>

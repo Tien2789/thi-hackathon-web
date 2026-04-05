@@ -10,7 +10,7 @@ const routes = [
   { path: '/outbound', component: () => import('../views/Outbound.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/assets', component: () => import('../views/Assets.vue'), meta: { roles: ['ADMIN', 'MANAGER', 'STAFF'] } },
   { path: '/reports', component: () => import('../views/Reports.vue'), meta: { roles: ['ADMIN', 'MANAGER'] } },
-  { path: '/users', component: () => import('../views/UserManagement.vue'), meta: { roles: ['ADMIN'] } },
+  { path: '/users', component: () => import('../views/UserManagement.vue'), meta: { roles: ['ADMIN', 'MANAGER'] } },
   { path: '/profile', component: () => import('../views/Login.vue'), props: { mode: 'profile' } },
   
   // Public Signature Landing

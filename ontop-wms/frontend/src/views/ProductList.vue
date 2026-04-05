@@ -165,12 +165,12 @@ onMounted(() => {
                 <el-icon :size="32"><Box /></el-icon>
             </div>
             <div>
-                <h3 class="fw-black text-dark mb-1 ls-tight">Product Master Data</h3>
+                <h3 class="fw-black text-dark mb-1 ls-tight">Dữ liệu Hàng Hóa</h3>
                 <p class="text-muted small mb-0 fw-medium">Hồ sơ hàng hóa tập trung & Quản lý định mức tồn kho (Safety Stock)</p>
             </div>
         </div>
         <div class="d-flex gap-3">
-            <el-button size="large" class="rounded-pill px-4" :icon="Download">Export CSV</el-button>
+            <el-button size="large" class="rounded-pill px-4" :icon="Download">Xuất CSV</el-button>
             <el-button type="primary" size="large" class="rounded-pill px-4 shadow-sm fw-bold border-0" :icon="Plus" @click="openAddDialog">Khai báo sản phẩm</el-button>
         </div>
     </div>
@@ -195,7 +195,7 @@ onMounted(() => {
                 </el-select>
             </div>
             <div class="col-md-2">
-                <el-button class="w-100 rounded-pill fw-bold text-primary" link @click="fetchProducts"><el-icon class="me-1"><Filter /></el-icon>REFRESH</el-button>
+                <el-button class="w-100 rounded-pill fw-bold text-primary" link @click="fetchProducts"><el-icon class="me-1"><Filter /></el-icon>LÀM MỚI</el-button>
             </div>
         </div>
     </div>
@@ -271,7 +271,7 @@ onMounted(() => {
                 size="small" 
                 effect="light"
                 class="rounded-pill border-0 px-3 fw-bold tiny letter-spacing-1">
-                {{ scope.row.currentStock > scope.row.minStock ? 'HEALTHY' : (scope.row.currentStock > 0 ? 'REORDER' : 'EMPTY') }}
+                {{ scope.row.currentStock > scope.row.minStock ? 'TỐT' : (scope.row.currentStock > 0 ? 'TẶNG THÊM' : 'TRỐNG') }}
                </el-tag>
            </template>
         </el-table-column>
@@ -294,24 +294,24 @@ onMounted(() => {
       </el-table>
       
       <div class="table-footer p-4 border-top d-flex justify-content-between align-items-center bg-light bg-opacity-30">
-          <p class="mb-0 tiny text-muted fw-bold tracking-widest">{{ filteredProducts.length }} ITEMS REGISTERED IN NODE</p>
+          <p class="mb-0 tiny text-muted fw-bold tracking-widest">{{ filteredProducts.length }} SẢN PHẨM ĐƯỢC GHI NHẬN</p>
           <el-pagination background layout="prev, pager, next" :total="filteredProducts.length" class="premium-pagination" />
       </div>
     </div>
 
     <!-- Premium Add/Edit Dialog -->
-    <el-dialog v-model="dialogVisible" :title="isEdit ? 'Modification Profile' : 'New Product Registration'" width="750px" align-center class="premium-dialog rounded-5 overflow-hidden">
+    <el-dialog v-model="dialogVisible" :title="isEdit ? 'Cập nhật thông tin' : 'Thêm sản phẩm mới'" width="750px" align-center class="premium-dialog rounded-5 overflow-hidden">
       <div class="px-4 pb-3">
         <el-form :model="form" label-position="top" class="premium-form pt-3">
             <div class="row g-4">
                 <div class="col-md-8">
-                    <el-form-item label="Product Descriptor (Commercial Name)" required>
-                        <el-input v-model="form.productName" placeholder="Enter formal name for documentation" class="premium-input-pill" />
+                    <el-form-item label="Tên sản phẩm (Commercial Name)" required>
+                        <el-input v-model="form.productName" placeholder="Nhập tên đầy đủ của sản phẩm..." class="premium-input-pill" />
                     </el-form-item>
                 </div>
                 <div class="col-md-4">
-                    <el-form-item label="Primary SKU Code" required>
-                        <el-input v-model="form.skuCode" placeholder="E.g. WMS-PRO-101" class="premium-input-pill">
+                    <el-form-item label="Mã SKU chính" required>
+                        <el-input v-model="form.skuCode" placeholder="Vd. WMS-PRO-101" class="premium-input-pill">
                             <template #suffix>
                                 <el-button link :icon="markRaw(Connection)" title="Tự động tạo mã" @click="form.skuCode = 'SKU-' + Date.now().toString().slice(-6)" />
                             </template>
@@ -320,9 +320,9 @@ onMounted(() => {
                 </div>
                 
                 <div class="col-md-6">
-                    <el-form-item label="Classification & Category">
+                    <el-form-item label="Phân loại & Danh mục">
                         <div class="d-flex gap-2">
-                            <el-select v-model="form.category.id" placeholder="Global Category" class="flex-grow-1 premium-select" filterable>
+                            <el-select v-model="form.category.id" placeholder="Chọn danh mục" class="flex-grow-1 premium-select" filterable>
                                 <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
                             </el-select>
                             <el-button circle :icon="markRaw(Plus)" type="primary" plain @click="handleCreateMetadata('Danh mục')" />
@@ -331,9 +331,9 @@ onMounted(() => {
                 </div>
                 
                 <div class="col-md-6">
-                    <el-form-item label="Standard Measurement Unit (UOM)">
+                    <el-form-item label="Đơn vị Đo lường (UOM)">
                         <div class="d-flex gap-2">
-                            <el-select v-model="form.unit.id" placeholder="Unit of Measure" class="flex-grow-1 premium-select" filterable>
+                            <el-select v-model="form.unit.id" placeholder="Chọn đơn vị tính" class="flex-grow-1 premium-select" filterable>
                                 <el-option v-for="u in units" :key="u.id" :label="u.name" :value="u.id" />
                             </el-select>
                             <el-button circle :icon="markRaw(Plus)" type="info" plain @click="handleCreateMetadata('Đơn vị')" />
@@ -342,20 +342,20 @@ onMounted(() => {
                 </div>
 
                 <div class="col-md-6">
-                    <el-form-item label="UPC / EAN Barcode">
-                        <el-input v-model="form.barcode" placeholder="Scan or type barcode" class="premium-input-pill" />
+                    <el-form-item label="Mã vạch UPC / EAN">
+                        <el-input v-model="form.barcode" placeholder="Quét hoặc nhập mã vạch" class="premium-input-pill" />
                     </el-form-item>
                 </div>
                 
                 <div class="col-md-6">
-                    <el-form-item label="Strategic Reorder Point (Min Stock)">
+                    <el-form-item label="Điểm Tái đặt hàng (Tồn kho TT)">
                         <el-input-number v-model="form.minStock" :min="0" class="w-100 premium-number-input" controls-position="right" />
                     </el-form-item>
                 </div>
                 
                 <div class="col-12">
-                    <el-form-item label="Verified Supplier Origin">
-                        <el-select v-model="form.supplier.id" placeholder="Direct Manufacturer or Distributor" class="w-100 premium-select" filterable>
+                    <el-form-item label="Nhà Cung cấp / Xuất xứ">
+                        <el-select v-model="form.supplier.id" placeholder="Nhà sản xuất hoặc phân phối trực tiếp" class="w-100 premium-select" filterable>
                             <el-option v-for="s in suppliers" :key="s.id" :label="s.name" :value="s.id" />
                         </el-select>
                     </el-form-item>
@@ -365,7 +365,7 @@ onMounted(() => {
             <div class="alert-premium mt-4 p-4 rounded-4 bg-primary bg-opacity-5 border border-primary border-opacity-10 d-flex gap-3 align-items-start">
                 <el-icon :size="24" class="text-primary"><InfoFilled /></el-icon>
                 <div>
-                    <h6 class="fw-bold text-dark mb-1 small">Automatic Ledger Integration</h6>
+                    <h6 class="fw-bold text-dark mb-1 small">Tự động kích hoạt sổ cái kho</h6>
                     <p class="ultra-tiny text-muted mb-0 lh-base">Khai báo này sẽ tự động khởi tạo hồ sơ hàng hóa trong Ledger hệ thống. Tồn kho khởi tạo mặc định là 0 cho đến khi có phiếu nhập kho hợp lệ (Voucher 01-VT).</p>
                 </div>
             </div>
@@ -373,8 +373,8 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="d-flex justify-content-end gap-2 px-5 pb-5 border-0">
-          <el-button @click="dialogVisible = false" class="rounded-pill px-5 border-0 bg-light text-muted fw-bold">CANCEL</el-button>
-          <el-button type="primary" @click="handleSave" class="rounded-pill px-5 shadow-sm fw-black border-0 bg-primary">INITIALIZE RECORD</el-button>
+          <el-button @click="dialogVisible = false" class="rounded-pill px-5 border-0 bg-light text-muted fw-bold">HỦY BỎ</el-button>
+          <el-button type="primary" @click="handleSave" class="rounded-pill px-5 shadow-sm fw-black border-0 bg-primary">KHỞI TẠO BẢN GHI</el-button>
         </div>
       </template>
     </el-dialog>

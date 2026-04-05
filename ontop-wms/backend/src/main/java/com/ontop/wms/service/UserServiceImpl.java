@@ -10,6 +10,7 @@ import com.ontop.wms.repository.UserRepository;
 import com.ontop.wms.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +29,23 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if ("ADMIN".equals(currentUser.getRole().getRoleName())) {
+            return userRepository.findAll().stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+        } else if ("MANAGER".equals(currentUser.getRole().getRoleName())) {
+            if (currentUser.getWarehouse() == null) {
+                return List.of();
+            }
+            return userRepository.findByWarehouse_Id(currentUser.getWarehouse().getId()).stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+        }
+        return List.of(); // Users cannot see
     }
 
     @Override
@@ -77,8 +92,18 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
         
-        if ("admin".equals(user.getUsername())) {
-            throw new IllegalArgumentException("Cannot lock the root admin account");
+        if ("admin".equals(user.getUsername()) || "ADMIN".equals(user.getRole().getRoleName())) {
+            throw new IllegalArgumentException("Cannot lock the admin account");
+        }
+
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
+
+        if ("MANAGER".equals(currentUser.getRole().getRoleName())) {
+            if (user.getWarehouse() == null || currentUser.getWarehouse() == null ||
+                !user.getWarehouse().getId().equals(currentUser.getWarehouse().getId())) {
+                throw new IllegalArgumentException("Manager can only lock users in their own warehouse");
+            }
         }
         
         user.setIsActive(user.getIsActive() == null || !user.getIsActive());

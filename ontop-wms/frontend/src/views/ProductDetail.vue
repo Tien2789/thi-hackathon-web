@@ -3,7 +3,7 @@ import { ref, markRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import { 
   Back, Box, Timer, Edit, InfoFilled, 
-  TrendCharts, History, CollectionTag, 
+  TrendCharts, Clock, CollectionTag, 
   PriceTag, Compass, Monitor, Histogram
 } from '@element-plus/icons-vue'
 
