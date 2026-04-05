@@ -1,5 +1,6 @@
 package com.ontop.wms.service;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -74,56 +75,56 @@ public class InventoryServiceImpl implements InventoryService {
 
             if (request.getDetails() != null && !request.getDetails().isEmpty()) {
                 for (ApproveRequest item : request.getDetails()) {
-                    Product product;
+                    Product targetProduct;
                     Integer pid = item.getProductId();
                     
                     if (pid != null) {
-                        product = productRepository.findById(pid)
+                        targetProduct = productRepository.findById(pid)
                             .orElseThrow(() -> new EntityNotFoundException("Product not found: " + pid));
                     } else if (item.getProductName() != null) {
-                        product = new Product();
-                        product.setProductName(item.getProductName());
+                        Product newProduct = new Product();
+                        newProduct.setProductName(item.getProductName());
                         
                         String sku = item.getSkuCode();
                         if (sku == null || sku.isEmpty()) {
                             sku = generateSku(item.getProductName());
                         }
-                        product.setSkuCode(sku);
-                        product.setBarcode(item.getBarcode() != null ? item.getBarcode() : sku);
-                        product.setCurrentStock(0);
+                        newProduct.setSkuCode(sku);
+                        newProduct.setBarcode(item.getBarcode() != null ? item.getBarcode() : sku);
+                        newProduct.setCurrentStock(0);
 
                         Integer cid = item.getCategoryId();
                         if (cid != null) {
-                            categoryRepository.findById(cid).ifPresent(product::setCategory);
+                            categoryRepository.findById(cid).ifPresent(newProduct::setCategory);
                         } else if (item.getCategoryName() != null && !item.getCategoryName().isEmpty()) {
                             categoryRepository.findByName(item.getCategoryName())
-                                .ifPresentOrElse(product::setCategory, () -> {
+                                .ifPresentOrElse(newProduct::setCategory, () -> {
                                     com.ontop.wms.entity.Category newCat = new com.ontop.wms.entity.Category();
                                     newCat.setName(item.getCategoryName());
-                                    product.setCategory(categoryRepository.save(newCat));
+                                    newProduct.setCategory(categoryRepository.save(newCat));
                                 });
                         }
 
                         Integer uid = item.getUnitId();
                         if (uid != null) {
-                            unitRepository.findById(uid).ifPresent(product::setUnit);
+                            unitRepository.findById(uid).ifPresent(newProduct::setUnit);
                         } else if (item.getUnitName() != null && !item.getUnitName().isEmpty()) {
                             unitRepository.findByName(item.getUnitName())
-                                .ifPresentOrElse(product::setUnit, () -> {
+                                .ifPresentOrElse(newProduct::setUnit, () -> {
                                     com.ontop.wms.entity.Unit newUnit = new com.ontop.wms.entity.Unit();
                                     newUnit.setName(item.getUnitName());
-                                    product.setUnit(unitRepository.save(newUnit));
+                                    newProduct.setUnit(unitRepository.save(newUnit));
                                 });
                         }
                         
-                        product = productRepository.save(product);
+                        targetProduct = productRepository.save(newProduct);
                     } else {
                         throw new IllegalArgumentException("Hoặc productId hoặc thông tin sản phẩm mới phải được cung cấp.");
                     }
                     
                     InDetail detail = new InDetail();
                     detail.setInventoryIn(inventoryIn);
-                    detail.setProduct(product);
+                    detail.setProduct(targetProduct);
                     detail.setQuantity(item.getQuantity());
                     detail.setRemainingQuantity(item.getQuantity());
                     detail.setUnitPrice(item.getUnitPrice());
@@ -131,13 +132,17 @@ public class InventoryServiceImpl implements InventoryService {
                     detail.setExpiryDate(item.getExpiryDate());
                     inDetailRepository.save(detail);
 
-                    product.setCurrentStock((product.getCurrentStock() != null ? product.getCurrentStock() : 0) + item.getQuantity());
-                    productRepository.save(product);
+                    int currentStock = targetProduct.getCurrentStock() != null ? targetProduct.getCurrentStock() : 0;
+                    int quantityToAdd = item.getQuantity() != null ? item.getQuantity() : 0;
+                    targetProduct.setCurrentStock(currentStock + quantityToAdd);
+                    productRepository.save(targetProduct);
                 }
                 inventoryIn.setStatus("APPROVED");
                 inventoryInRepository.save(inventoryIn);
                 
-                signatureService.initiateSignatures("INBOUND", inventoryIn.getId(), request.getSignerEmails());
+                if (inventoryIn.getId() != null) {
+                    signatureService.initiateSignatures("INBOUND", inventoryIn.getId(), request.getSignerEmails());
+                }
             }
         }
         return inventoryIn;
@@ -212,59 +217,61 @@ public class InventoryServiceImpl implements InventoryService {
 
             if (request.getDetails() != null && !request.getDetails().isEmpty()) {
                 for (ApproveRequest item : request.getDetails()) {
-                    Product product;
+                    Product targetProduct;
                     Integer pid = item.getProductId();
                     
                     if (pid != null) {
-                        product = productRepository.findById(pid)
+                        targetProduct = productRepository.findById(pid)
                             .orElseThrow(() -> new EntityNotFoundException("Product not found: " + pid));
                     } else if (item.getProductName() != null) {
-                        product = new Product();
-                        product.setProductName(item.getProductName());
+                        Product newProduct = new Product();
+                        newProduct.setProductName(item.getProductName());
                         
                         String sku = item.getSkuCode();
                         if (sku == null || sku.isEmpty()) {
                             sku = generateSku(item.getProductName());
                         }
-                        product.setSkuCode(sku);
-                        product.setBarcode(item.getBarcode() != null ? item.getBarcode() : sku);
-                        product.setCurrentStock(0);
+                        newProduct.setSkuCode(sku);
+                        newProduct.setBarcode(item.getBarcode() != null ? item.getBarcode() : sku);
+                        newProduct.setCurrentStock(0);
 
                         Integer cid = item.getCategoryId();
                         if (cid != null) {
-                            categoryRepository.findById(cid).ifPresent(product::setCategory);
+                            categoryRepository.findById(cid).ifPresent(newProduct::setCategory);
                         } else if (item.getCategoryName() != null && !item.getCategoryName().isEmpty()) {
                             categoryRepository.findByName(item.getCategoryName())
-                                .ifPresentOrElse(product::setCategory, () -> {
+                                .ifPresentOrElse(newProduct::setCategory, () -> {
                                     com.ontop.wms.entity.Category newCat = new com.ontop.wms.entity.Category();
                                     newCat.setName(item.getCategoryName());
-                                    product.setCategory(categoryRepository.save(newCat));
+                                    newProduct.setCategory(categoryRepository.save(newCat));
                                 });
                         }
 
                         Integer uid = item.getUnitId();
                         if (uid != null) {
-                            unitRepository.findById(uid).ifPresent(product::setUnit);
+                            unitRepository.findById(uid).ifPresent(newProduct::setUnit);
                         } else if (item.getUnitName() != null && !item.getUnitName().isEmpty()) {
                             unitRepository.findByName(item.getUnitName())
-                                .ifPresentOrElse(product::setUnit, () -> {
+                                .ifPresentOrElse(newProduct::setUnit, () -> {
                                     com.ontop.wms.entity.Unit newUnit = new com.ontop.wms.entity.Unit();
                                     newUnit.setName(item.getUnitName());
-                                    product.setUnit(unitRepository.save(newUnit));
+                                    newProduct.setUnit(unitRepository.save(newUnit));
                                 });
                         }
                         
-                        product = productRepository.save(product);
+                        targetProduct = productRepository.save(newProduct);
                     } else {
                         throw new IllegalArgumentException("Hoặc productId hoặc thông tin sản phẩm mới phải được cung cấp.");
                     }
                     
-                    if ((product.getCurrentStock() != null ? product.getCurrentStock() : 0) < item.getQuantity()) {
-                        throw new IllegalStateException("Insufficient stock for: " + product.getProductName());
+                    int currentStock = targetProduct.getCurrentStock() != null ? targetProduct.getCurrentStock() : 0;
+                    int quantityToExit = item.getQuantity() != null ? item.getQuantity() : 0;
+                    if (currentStock < quantityToExit) {
+                        throw new IllegalStateException("Insufficient stock for: " + targetProduct.getProductName());
                     }
 
-                    int remainingToPick = item.getQuantity();
-                    List<InDetail> inDetails = inDetailRepository.findAvailableStockForFIFO(product);
+                    int remainingToPick = quantityToExit;
+                    List<InDetail> inDetails = inDetailRepository.findAvailableStockForFIFO(targetProduct);
                     for (InDetail inStock : inDetails) {
                         if (remainingToPick <= 0) break;
                         int pickAmount = Math.min(inStock.getRemainingQuantity(), remainingToPick);
@@ -273,14 +280,14 @@ public class InventoryServiceImpl implements InventoryService {
                         remainingToPick -= pickAmount;
                     }
 
-                    if (remainingToPick > 0) throw new IllegalStateException("FIFO error for: " + product.getProductName());
+                    if (remainingToPick > 0) throw new IllegalStateException("FIFO error for: " + targetProduct.getProductName());
 
-                    product.setCurrentStock((product.getCurrentStock() != null ? product.getCurrentStock() : 0) - item.getQuantity());
-                    productRepository.save(product);
+                    targetProduct.setCurrentStock(currentStock - quantityToExit);
+                    productRepository.save(targetProduct);
 
                     OutDetail detail = new OutDetail();
                     detail.setInventoryOut(inventoryOut);
-                    detail.setProduct(product);
+                    detail.setProduct(targetProduct);
                     detail.setQuantity(item.getQuantity());
                     detail.setRequestedQuantity(item.getRequestedQuantity() != null ? item.getRequestedQuantity() : item.getQuantity());
                     detail.setActualQuantity(item.getQuantity());
@@ -337,7 +344,7 @@ public class InventoryServiceImpl implements InventoryService {
         detail.setQuantity(request.getQuantity());
         detail.setRequestedQuantity(request.getRequestedQuantity());
         detail.setActualQuantity(request.getQuantity());
-        detail.setUnitPrice(inDetails.isEmpty() ? 0 : inDetails.get(0).getUnitPrice());
+        detail.setUnitPrice(inDetails.isEmpty() ? BigDecimal.ZERO : inDetails.get(0).getUnitPrice());
         outDetailRepository.save(detail);
 
         inventoryOut.setStatus("APPROVED");
