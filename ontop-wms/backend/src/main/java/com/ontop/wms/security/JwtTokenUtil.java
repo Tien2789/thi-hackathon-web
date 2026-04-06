@@ -2,6 +2,7 @@ package com.ontop.wms.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +23,7 @@ public class JwtTokenUtil implements Serializable {
 
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 
-    @Value("${jwt.secret:defaultSecretKeyLongEnoughForHS512}")
+    @Value("${jwt.secret:defaultSecretKeyLongEnoughForHS512Something}")
     private String secret;
 
     private SecretKey getSigningKey() {
@@ -43,7 +44,7 @@ public class JwtTokenUtil implements Serializable {
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(getSigningKey()).parseClaimsJws(token).getBody();
     }
 
     private Boolean isTokenExpired(String token) {
@@ -62,7 +63,7 @@ public class JwtTokenUtil implements Serializable {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                .signWith(getSigningKey())
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
