@@ -6,13 +6,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "warehouses")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Warehouse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +26,6 @@ public class Warehouse {
     private String code;
 
     private String name;
-    private String location;
-    private String manager;
+    private String address;
     private Integer capacity;
 }
