@@ -9,12 +9,14 @@ import com.ontop.wms.repository.RoleRepository;
 import com.ontop.wms.repository.UserRepository;
 import com.ontop.wms.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,29 +33,26 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> getAllUsers() {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Current user not found"));
 
-        if ("ADMIN".equals(currentUser.getRole().getRoleName())) {
+        // Assuming the first role is the primary role
+        String primaryRole = currentUser.getRoles().stream().findFirst()
+                                      .map(Role::getName)
+                                      .orElse(null);
+
+        if ("ADMIN".equals(primaryRole)) {
             return userRepository.findAll().stream()
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
-        } else if ("MANAGER".equals(currentUser.getRole().getRoleName())) {
-            if (currentUser.getWarehouse() == null) {
-                return List.of();
-            }
-            return userRepository.findByWarehouse_Id(currentUser.getWarehouse().getId()).stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
+        } else if ("MANAGER".equals(primaryRole)) {
+            // Assuming a manager is associated with at most one warehouse
+            return currentUser.getWarehouses().stream().findFirst()
+                    .map(warehouse -> userRepository.findByWarehouse_Id(warehouse.getId()).stream()
+                                                .map(this::convertToDto)
+                                                .collect(Collectors.toList()))
+                    .orElse(List.of());
         }
-        return List.of(); // Users cannot see
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<String> getAllRoleNames() {
-        return roleRepository.findAll().stream()
-                .map(Role::getRoleName)
-                .collect(Collectors.toList());
+        return List.of(); // Other roles cannot see the user list
     }
 
     @Override
@@ -63,62 +62,44 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Username already exists");
         });
 
-        Role role = roleRepository.findByRoleName(request.getRoleName())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid role: " + request.getRoleName()));
+        Role role = roleRepository.findByName(request.getRole())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid role specified: " + request.getRole()));
+
+        Set<Warehouse> warehouses = new HashSet<>();
+        if (request.getWarehouses() != null && !request.getWarehouses().isEmpty()) {
+            warehouses = request.getWarehouses().stream()
+                    .map(warehouseCode -> warehouseRepository.findByCode(warehouseCode)
+                            .orElseThrow(() -> new IllegalArgumentException("Invalid warehouse code: " + warehouseCode)))
+                    .collect(Collectors.toSet());
+        }
 
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(role);
-        user.setIsActive(true);
-
-        Integer warehouseId = request.getWarehouseId();
-        if (warehouseId != null) {
-            Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid warehouse ID: " + warehouseId));
-            user.setWarehouse(warehouse);
-        }
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        
+        Set<Role> roles = new HashSet<>();
+        roles.add(role);
+        user.setRoles(roles);
+        user.setWarehouses(warehouses);
 
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
     }
 
-
-    @Override
-    @Transactional
-    public void lockUser(Integer id) { 
-        if (id == null) return;
-        
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
-        
-        if ("admin".equals(user.getUsername()) || "ADMIN".equals(user.getRole().getRoleName())) {
-            throw new IllegalArgumentException("Cannot lock the admin account");
-        }
-
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
-
-        if ("MANAGER".equals(currentUser.getRole().getRoleName())) {
-            if (user.getWarehouse() == null || currentUser.getWarehouse() == null ||
-                !user.getWarehouse().getId().equals(currentUser.getWarehouse().getId())) {
-                throw new IllegalArgumentException("Manager can only lock users in their own warehouse");
-            }
-        }
-        
-        user.setIsActive(user.getIsActive() == null || !user.getIsActive());
-        userRepository.save(user);
-    }
-
+    // Method to convert User entity to UserDTO
     private UserDTO convertToDto(User user) {
-        UserDTO.RoleDTO roleDTO = user.getRole() != null ? new UserDTO.RoleDTO(user.getRole().getRoleName()) : null;
-        UserDTO.WarehouseDTO warehouseDTO = user.getWarehouse() != null ? new UserDTO.WarehouseDTO(user.getWarehouse().getId(), user.getWarehouse().getName()) : null;
-        return new UserDTO(
-                user.getId(),
-                user.getUsername(),
-                roleDTO,
-                warehouseDTO,
-                user.getIsActive() == null || user.getIsActive()
-        );
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+        dto.setWarehouses(user.getWarehouses().stream().map(Warehouse::getCode).collect(Collectors.toSet()));
+        return dto;
     }
+    
+    // The lockUser functionality is removed as the isActive property is no longer in use.
+    // If user deactivation is needed, a new implementation (e.g., a 'status' field) is required.
 }
