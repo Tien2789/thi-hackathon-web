@@ -7,7 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -22,23 +24,24 @@ public class DataInitializer implements CommandLineRunner {
         // 1. Seed Roles
         List<String> rolesToSeed = Arrays.asList("ADMIN", "MANAGER", "STAFF");
         for (String roleName : rolesToSeed) {
-            if (roleRepository.findByRoleName(roleName).isEmpty()) {
+            if (roleRepository.findByName(roleName).isEmpty()) {
                 Role role = new Role();
-                role.setRoleName(roleName);
+                role.setName(roleName);
                 roleRepository.save(role);
             }
         }
 
         // 2. Seed Default Admin
         if (userRepository.findByUsername("admin").isEmpty()) {
-            Role adminRole = roleRepository.findByRoleName("ADMIN")
+            Role adminRole = roleRepository.findByName("ADMIN")
                     .orElseThrow(() -> new RuntimeException("ADMIN role not found after seeding"));
             
             User admin = new User();
             admin.setUsername("admin");
             admin.setPassword(passwordEncoder.encode("admin123"));
-            admin.setRole(adminRole);
-            admin.setIsActive(true);
+            Set<Role> roles = new HashSet<>();
+            roles.add(adminRole);
+            admin.setRoles(roles);
             userRepository.save(admin);
             
             System.out.println(">>> Seeded default admin user: admin / admin123");

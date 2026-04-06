@@ -1,6 +1,8 @@
 package com.ontop.wms.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ontop.wms.entity.Product;
+import com.ontop.wms.entity.Role;
 import com.ontop.wms.entity.Warehouse;
 import com.ontop.wms.repository.WarehouseRepository;
 import com.ontop.wms.repository.UserRepository;
@@ -32,20 +35,14 @@ public class WarehouseController {
         com.ontop.wms.entity.User currentUser = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
                 
-        com.ontop.wms.entity.Role userRole = currentUser.getRole();
-        
-        if (userRole == null) {
-             return ResponseEntity.ok(List.of());
-        }
-        String role = userRole.getRoleName();
+        boolean isAdmin = currentUser.getRoles().stream()
+                            .map(Role::getName)
+                            .anyMatch(name -> "ADMIN".equals(name));
 
-        if ("ADMIN".equals(role)) {
+        if (isAdmin) {
             return ResponseEntity.ok(warehouseRepository.findAll());
         } else {
-            if (currentUser.getWarehouse() == null) {
-                return ResponseEntity.ok(List.of());
-            }
-            return ResponseEntity.ok(List.of(currentUser.getWarehouse()));
+            return ResponseEntity.ok(new ArrayList<>(currentUser.getWarehouses()));
         }
     }
 
@@ -67,7 +64,7 @@ public class WarehouseController {
 
         if (warehouseDetails != null) {
             warehouse.setName(warehouseDetails.getName());
-            warehouse.setLocation(warehouseDetails.getLocation());
+            warehouse.setAddress(warehouseDetails.getAddress());
         }
         return ResponseEntity.ok(warehouseRepository.save(warehouse));
     }
