@@ -25,6 +25,10 @@ const handleLogin = async () => {
     const response = await api.post('/auth/login', {
       username: loginForm.value.username,
       password: loginForm.value.password
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
 
     localStorage.setItem('token', response.data.token)
