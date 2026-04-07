@@ -1,14 +1,19 @@
 package com.ontop.wms.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.Set;
 
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDTO {
-    private Integer id;
+    private Long id;
     private String username;
-    private String name;
     private String email;
     private Set<String> roles;
     private Set<String> warehouses;

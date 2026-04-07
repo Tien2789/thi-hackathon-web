@@ -2,7 +2,6 @@ package com.ontop.wms.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +30,7 @@ public class WarehouseController {
     private final UserRepository userRepository;
 
     @GetMapping
+    @SuppressWarnings("null")
     public ResponseEntity<List<Warehouse>> getAllWarehouses(org.springframework.security.core.Authentication authentication) {
         com.ontop.wms.entity.User currentUser = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));

@@ -179,7 +179,8 @@ public class InventoryServiceImpl implements InventoryService {
         detail.setExpiryDate(request.getExpiryDate());
         inDetailRepository.save(detail);
 
-        product.setCurrentStock((product.getCurrentStock() != null ? product.getCurrentStock() : 0) + request.getQuantity());
+        int quantity = request.getQuantity() != null ? request.getQuantity() : 0;
+        product.setCurrentStock((product.getCurrentStock() != null ? product.getCurrentStock() : 0) + quantity);
         productRepository.save(product);
 
         inventoryIn.setStatus("APPROVED");
@@ -297,7 +298,9 @@ public class InventoryServiceImpl implements InventoryService {
                 inventoryOut.setStatus("APPROVED");
                 inventoryOutRepository.save(inventoryOut);
 
-                signatureService.initiateSignatures("OUTBOUND", inventoryOut.getId(), request.getSignerEmails());
+                if (inventoryOut.getId() != null) {
+                    signatureService.initiateSignatures("OUTBOUND", inventoryOut.getId(), request.getSignerEmails());
+                }
             }
         }
         return inventoryOut;
@@ -316,11 +319,12 @@ public class InventoryServiceImpl implements InventoryService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Sản phẩm không tồn tại với id: " + request.getProductId()));
 
-        if ((product.getCurrentStock() != null ? product.getCurrentStock() : 0) < request.getQuantity()) {
+        int quantity = request.getQuantity() != null ? request.getQuantity() : 0;
+        if ((product.getCurrentStock() != null ? product.getCurrentStock() : 0) < quantity) {
             throw new IllegalStateException("Không đủ tồn kho cho sản phẩm: " + product.getProductName());
         }
 
-        int remainingToPick = request.getQuantity();
+        int remainingToPick = quantity;
         List<InDetail> inDetails = inDetailRepository.findAvailableStockForFIFO(product);
         
         for (InDetail inStock : inDetails) {
@@ -335,15 +339,15 @@ public class InventoryServiceImpl implements InventoryService {
             throw new IllegalStateException("Lỗi FIFO: Không tìm thấy lô hàng để đáp ứng đủ số lượng.");
         }
 
-        product.setCurrentStock((product.getCurrentStock() != null ? product.getCurrentStock() : 0) - request.getQuantity());
+        product.setCurrentStock((product.getCurrentStock() != null ? product.getCurrentStock() : 0) - quantity);
         productRepository.save(product);
 
         OutDetail detail = new OutDetail();
         detail.setInventoryOut(inventoryOut);
         detail.setProduct(product);
-        detail.setQuantity(request.getQuantity());
+        detail.setQuantity(quantity);
         detail.setRequestedQuantity(request.getRequestedQuantity());
-        detail.setActualQuantity(request.getQuantity());
+        detail.setActualQuantity(quantity);
         detail.setUnitPrice(inDetails.isEmpty() ? BigDecimal.ZERO : inDetails.get(0).getUnitPrice());
         outDetailRepository.save(detail);
 
@@ -371,8 +375,11 @@ public class InventoryServiceImpl implements InventoryService {
 
         for (OutDetail detail : details) {
             Product product = detail.getProduct();
-            product.setCurrentStock((product.getCurrentStock() != null ? product.getCurrentStock() : 0) + detail.getActualQuantity());
-            productRepository.save(product);
+            Integer actualQuantity = detail.getActualQuantity();
+            if (product != null && actualQuantity != null) {
+                product.setCurrentStock((product.getCurrentStock() != null ? product.getCurrentStock() : 0) + actualQuantity);
+                productRepository.save(product);
+            }
         }
 
         inventoryOut.setStatus("CANCELLED");

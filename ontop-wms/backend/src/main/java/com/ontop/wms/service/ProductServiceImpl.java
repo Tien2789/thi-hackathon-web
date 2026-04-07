@@ -1,7 +1,6 @@
 package com.ontop.wms.service;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +29,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public Product saveProduct(Product product) {
         if (product == null) return null;
 

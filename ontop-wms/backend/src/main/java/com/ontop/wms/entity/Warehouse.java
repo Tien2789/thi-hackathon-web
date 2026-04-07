@@ -1,15 +1,13 @@
 package com.ontop.wms.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "warehouses")
@@ -18,14 +16,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Warehouse {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String code;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String address;
-    private Integer capacity;
+
+    @ManyToMany(mappedBy = "warehouses", fetch = FetchType.LAZY)
+    private Set<User> users = new HashSet<>();
 }

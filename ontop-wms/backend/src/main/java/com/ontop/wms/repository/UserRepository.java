@@ -1,6 +1,6 @@
 package com.ontop.wms.repository;
 
-import com.ontop.wms.model.User;
+import com.ontop.wms.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

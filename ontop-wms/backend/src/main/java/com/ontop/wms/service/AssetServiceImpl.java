@@ -1,69 +1,83 @@
 package com.ontop.wms.service;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-
+import com.ontop.wms.entity.Asset;
+import com.ontop.wms.entity.Warehouse;
+import com.ontop.wms.repository.AssetRepository;
+import com.ontop.wms.repository.WarehouseRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ontop.wms.repository.AssetRepository;
-
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class AssetServiceImpl implements AssetService {
 
-    private final AssetRepository assetRepository;
+    @Autowired
+    private AssetRepository assetRepository;
+
+    @Autowired
+    private WarehouseRepository warehouseRepository;
 
     @Override
     public Double calculateDepreciation(Integer id) {
-        if (id == null) {
+        // Assuming a simple straight-line depreciation for 5 years (60 months)
+        Asset asset = getAssetById(id.longValue());
+        if (asset == null || asset.getCreatedAt() == null) {
             return 0.0;
         }
-        com.ontop.wms.entity.Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Asset not found with id: " + id));
 
-        // Simplified placeholder depreciation logic:
-        // Assume a base value of 1000.0 and 5% annual depreciation from createdAt.
-        double baseValue = 1000.0;
-        double annualRate = 0.05;
+        long months = Duration.between(asset.getCreatedAt(), LocalDateTime.now()).toDays() / 30;
+        double originalValue = 1000; // Placeholder for asset's original value
+        double depreciationPerMonth = originalValue / 60;
 
-        LocalDateTime start = asset.getCreatedAt() != null ? asset.getCreatedAt() : LocalDateTime.now();
-        long years = ChronoUnit.YEARS.between(start, LocalDateTime.now());
-
-        double currentDepreciationValue = baseValue * Math.pow(1 - annualRate, Math.max(0, years));
-        return baseValue - currentDepreciationValue;
+        double accumulatedDepreciation = months * depreciationPerMonth;
+        return Math.max(0, originalValue - accumulatedDepreciation);
     }
 
     @Override
-    public List<com.ontop.wms.model.Asset> getAllAssets() {
-        // TODO: Implement actual logic
-        return Collections.emptyList();
+    public List<Asset> getAllAssets() {
+        return assetRepository.findAll();
     }
 
     @Override
-    public com.ontop.wms.model.Asset getAssetById(Long id) {
-        // TODO: Implement actual logic
-        return null;
+    public Asset getAssetById(Long id) {
+        return assetRepository.findById(id).orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
     }
 
     @Override
-    public com.ontop.wms.model.Asset createAsset(com.ontop.wms.model.Asset asset) {
-        // TODO: Implement actual logic
-        return null;
+    public Asset createAsset(Asset asset) {
+        // Make sure to set the warehouse correctly if its ID is provided
+        if (asset.getWarehouse() != null && asset.getWarehouse().getId() != null) {
+            Warehouse warehouse = warehouseRepository.findById(asset.getWarehouse().getId())
+                    .orElseThrow(() -> new RuntimeException("Warehouse not found"));
+            asset.setWarehouse(warehouse);
+        }
+        return assetRepository.save(asset);
     }
 
     @Override
-    public com.ontop.wms.model.Asset updateAsset(Long id, com.ontop.wms.model.Asset assetDetails) {
-        // TODO: Implement actual logic
-        return null;
+    public Asset updateAsset(Long id, Asset assetDetails) {
+        Asset asset = getAssetById(id);
+
+        asset.setAssetCode(assetDetails.getAssetCode());
+        asset.setName(assetDetails.getName());
+        asset.setDescription(assetDetails.getDescription());
+        asset.setQuantity(assetDetails.getQuantity());
+
+        if (assetDetails.getWarehouse() != null && assetDetails.getWarehouse().getId() != null) {
+            Warehouse warehouse = warehouseRepository.findById(assetDetails.getWarehouse().getId())
+                    .orElseThrow(() -> new RuntimeException("Warehouse not found"));
+            asset.setWarehouse(warehouse);
+        }
+
+        return assetRepository.save(asset);
     }
 
     @Override
     public void deleteAsset(Long id) {
-        // TODO: Implement actual logic
+        Asset asset = getAssetById(id);
+        assetRepository.delete(asset);
     }
 }

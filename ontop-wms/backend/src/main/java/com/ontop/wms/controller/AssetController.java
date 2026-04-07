@@ -1,6 +1,6 @@
 package com.ontop.wms.controller;
 
-import com.ontop.wms.model.Asset;
+import com.ontop.wms.entity.Asset;
 import com.ontop.wms.service.AssetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
