@@ -45,7 +45,7 @@ router.beforeEach((to, from, next) => {
   }
 
   // 3. Kiểm tra phân quyền (RBAC)
-  if (to.meta.roles && !to.meta.roles.includes(userRole)) {
+  if (to.meta.roles && !to.meta.roles.includes(userRole.toUpperCase())) {
     if (to.path === '/') {
       localStorage.removeItem('token')
       localStorage.removeItem('userRole')
