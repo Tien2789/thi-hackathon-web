@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
         } else if ("MANAGER".equals(primaryRole)) {
             // Assuming a manager is associated with at most one warehouse
             return currentUser.getWarehouses().stream().findFirst()
-                    .map(warehouse -> userRepository.findByWarehouse_Id(warehouse.getId()).stream()
+                    .map(warehouse -> userRepository.findByWarehouses_Id(warehouse.getId()).stream()
                                                 .map(this::convertToDto)
                                                 .collect(Collectors.toList()))
                     .orElse(List.of());
