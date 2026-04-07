@@ -1,45 +1,45 @@
 package com.ontop.wms.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.ontop.wms.entity.Asset;
-import com.ontop.wms.repository.AssetRepository;
+import com.ontop.wms.model.Asset;
 import com.ontop.wms.service.AssetService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/assets")
+@RequestMapping("/api/assets")
 @RequiredArgsConstructor
 public class AssetController {
+
     private final AssetService assetService;
-    private final AssetRepository assetRepository;
 
     @GetMapping
-    public ResponseEntity<List<Asset>> getAllAssets() {
-        return ResponseEntity.ok(assetRepository.findAll());
+    public List<Asset> getAllAssets() {
+        return assetService.getAllAssets();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Asset> getAssetById(@PathVariable Long id) {
+        Asset asset = assetService.getAssetById(id);
+        return ResponseEntity.ok(asset);
     }
 
     @PostMapping
-    public ResponseEntity<Asset> createAsset(@RequestBody Asset asset) {
-        if (asset == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(assetRepository.save(asset));
+    public Asset createAsset(@RequestBody Asset asset) {
+        return assetService.createAsset(asset);
     }
 
-    @GetMapping("/{id}/depreciation")
-    public ResponseEntity<Map<String, Double>> getDepreciation(@PathVariable Integer id) {
-        Double depreciation = assetService.calculateDepreciation(id);
-        return ResponseEntity.ok(Map.of("depreciationValue", depreciation));
+    @PutMapping("/{id}")
+    public ResponseEntity<Asset> updateAsset(@PathVariable Long id, @RequestBody Asset assetDetails) {
+        Asset updatedAsset = assetService.updateAsset(id, assetDetails);
+        return ResponseEntity.ok(updatedAsset);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAsset(@PathVariable Long id) {
+        assetService.deleteAsset(id);
+        return ResponseEntity.noContent().build();
     }
 }
