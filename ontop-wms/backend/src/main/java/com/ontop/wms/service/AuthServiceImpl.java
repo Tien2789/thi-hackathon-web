@@ -37,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
             .username(user.getUsername())
             .password(user.getPassword()) // Password must be present, even if not used directly for token
             .authorities(user.getRoles().stream()
-                .map(role -> "ROLE_" + role.getName())
+                .map(role -> role.getName()) // Use the role name directly
                 .toArray(String[]::new))
             .build();
 
