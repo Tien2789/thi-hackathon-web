@@ -10,7 +10,7 @@ in
 
   # Use https://search.nixos.org/packages to find packages
   packages = [
-    p.jdk17
+    p.jdk21
     p.maven
     p.nodejs_20
     p.nodePackages.npm
