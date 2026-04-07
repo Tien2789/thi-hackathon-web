@@ -1,26 +1,19 @@
 spring:
-  application:
-    name: ontop-wms-backend
-  threads:
-    virtual:
-      enabled: true
   datasource:
-    url: jdbc:mysql://localhost:3306/OnTop?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/OnTop
     username: root
-    password: 123456
+    password: '123456'
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
-jwt:
-  secret: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
-  expiration: 86400000
+    database-platform: org.hibernate.dialect.MySQLDialect
 
 server:
   port: 8080
   servlet:
     context-path: /api
+
+jwt:
+  secret: your-secret-key
+  expiration: 86400000
