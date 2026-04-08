@@ -2,6 +2,7 @@ package com.ontop.wms.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,14 +16,16 @@ import com.ontop.wms.dto.CreateUserRequest;
 import com.ontop.wms.dto.UserDTO;
 import com.ontop.wms.service.UserService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequestMapping("/users")
-@RequiredArgsConstructor
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
