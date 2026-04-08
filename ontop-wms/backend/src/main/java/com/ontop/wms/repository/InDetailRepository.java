@@ -16,4 +16,6 @@ public interface InDetailRepository extends JpaRepository<InDetail, Integer> {
     List<InDetail> findAvailableStockForFIFO(Product product);
 
     List<InDetail> findByInventoryInOrderByInventoryIn_CreatedAtAsc(InventoryIn inventoryIn);
+
+    List<InDetail> findByInventoryIn(InventoryIn inventoryIn);
 }
