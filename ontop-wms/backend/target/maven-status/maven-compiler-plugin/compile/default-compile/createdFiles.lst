@@ -1,10 +1,13 @@
 com/ontop/wms/controller/CategoryController.class
 com/ontop/wms/service/AlertService.class
 com/ontop/wms/dto/AuthResponse.class
+com/ontop/wms/controller/WarehouseController.class
 com/ontop/wms/entity/Asset.class
+com/ontop/wms/service/impl/UserServiceImpl.class
 com/ontop/wms/repository/InventoryInRepository.class
 com/ontop/wms/controller/ProductController.class
 com/ontop/wms/service/impl/JwtServiceImpl.class
+com/ontop/wms/service/AuthServiceImpl.class
 com/ontop/wms/service/AssetService.class
 com/ontop/wms/service/UserService.class
 com/ontop/wms/repository/InDetailRepository.class
@@ -69,3 +72,4 @@ com/ontop/wms/repository/ProductRepository.class
 com/ontop/wms/controller/ReportController.class
 com/ontop/wms/dto/OutboundDTO$OutDetailDTO.class
 com/ontop/wms/repository/SupplierRepository.class
+com/ontop/wms/service/AssetServiceImpl.class
