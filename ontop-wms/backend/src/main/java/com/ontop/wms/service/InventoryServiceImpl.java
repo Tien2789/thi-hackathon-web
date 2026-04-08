@@ -67,20 +67,18 @@ public class InventoryServiceImpl implements InventoryService {
             inventoryIn.setStatus("PENDING");
             inventoryIn.setCreatedAt(new Timestamp(Instant.now().toEpochMilli()));
             
-            Long warehouseId = request.getWarehouseId() != null ? request.getWarehouseId().longValue() : null;
-            if (warehouseId != null) {
-                warehouseRepository.findById(warehouseId).ifPresent(inventoryIn::setWarehouse);
+            if (request.getWarehouseId() != null) {
+                warehouseRepository.findById(request.getWarehouseId().longValue()).ifPresent(inventoryIn::setWarehouse);
             }
             inventoryIn = inventoryInRepository.save(inventoryIn);
 
             if (request.getDetails() != null && !request.getDetails().isEmpty()) {
                 for (ApproveRequest item : request.getDetails()) {
                     Product targetProduct;
-                    Long pid = item.getProductId() != null ? item.getProductId().longValue() : null;
                     
-                    if (pid != null) {
-                        targetProduct = productRepository.findById(pid)
-                            .orElseThrow(() -> new EntityNotFoundException("Product not found: " + pid));
+                    if (item.getProductId() != null) {
+                        targetProduct = productRepository.findById(item.getProductId().longValue())
+                            .orElseThrow(() -> new EntityNotFoundException("Product not found: " + item.getProductId()));
                     } else if (item.getProductName() != null) {
                         Product newProduct = new Product();
                         newProduct.setProductName(item.getProductName());
@@ -93,9 +91,8 @@ public class InventoryServiceImpl implements InventoryService {
                         newProduct.setBarcode(item.getBarcode() != null ? item.getBarcode() : sku);
                         newProduct.setCurrentStock(0);
 
-                        Long cid = item.getCategoryId() != null ? item.getCategoryId().longValue() : null;
-                        if (cid != null) {
-                            categoryRepository.findById(cid).ifPresent(newProduct::setCategory);
+                        if (item.getCategoryId() != null) {
+                            categoryRepository.findById(item.getCategoryId().longValue()).ifPresent(newProduct::setCategory);
                         } else if (item.getCategoryName() != null && !item.getCategoryName().isEmpty()) {
                             categoryRepository.findByName(item.getCategoryName())
                                 .ifPresentOrElse(newProduct::setCategory, () -> {
@@ -105,9 +102,8 @@ public class InventoryServiceImpl implements InventoryService {
                                 });
                         }
 
-                        Long uid = item.getUnitId() != null ? item.getUnitId().longValue() : null;
-                        if (uid != null) {
-                            unitRepository.findById(uid).ifPresent(newProduct::setUnit);
+                        if (item.getUnitId() != null) {
+                            unitRepository.findById(item.getUnitId().longValue()).ifPresent(newProduct::setUnit);
                         } else if (item.getUnitName() != null && !item.getUnitName().isEmpty()) {
                             unitRepository.findByName(item.getUnitName())
                                 .ifPresentOrElse(newProduct::setUnit, () -> {
@@ -210,20 +206,18 @@ public class InventoryServiceImpl implements InventoryService {
             inventoryOut.setStatus("PENDING");
             inventoryOut.setCreatedAt(new Timestamp(Instant.now().toEpochMilli()));
             
-            Long warehouseId = request.getWarehouseId() != null ? request.getWarehouseId().longValue() : null;
-            if (warehouseId != null) {
-                warehouseRepository.findById(warehouseId).ifPresent(inventoryOut::setWarehouse);
+            if (request.getWarehouseId() != null) {
+                warehouseRepository.findById(request.getWarehouseId().longValue()).ifPresent(inventoryOut::setWarehouse);
             }
             inventoryOut = inventoryOutRepository.save(inventoryOut);
 
             if (request.getDetails() != null && !request.getDetails().isEmpty()) {
                 for (ApproveRequest item : request.getDetails()) {
                     Product targetProduct;
-                    Long pid = item.getProductId() != null ? item.getProductId().longValue() : null;
                     
-                    if (pid != null) {
-                        targetProduct = productRepository.findById(pid)
-                            .orElseThrow(() -> new EntityNotFoundException("Product not found: " + pid));
+                    if (item.getProductId() != null) {
+                        targetProduct = productRepository.findById(item.getProductId().longValue())
+                            .orElseThrow(() -> new EntityNotFoundException("Product not found: " + item.getProductId()));
                     } else if (item.getProductName() != null) {
                         Product newProduct = new Product();
                         newProduct.setProductName(item.getProductName());
@@ -236,9 +230,8 @@ public class InventoryServiceImpl implements InventoryService {
                         newProduct.setBarcode(item.getBarcode() != null ? item.getBarcode() : sku);
                         newProduct.setCurrentStock(0);
 
-                        Long cid = item.getCategoryId() != null ? item.getCategoryId().longValue() : null;
-                        if (cid != null) {
-                            categoryRepository.findById(cid).ifPresent(newProduct::setCategory);
+                        if (item.getCategoryId() != null) {
+                            categoryRepository.findById(item.getCategoryId().longValue()).ifPresent(newProduct::setCategory);
                         } else if (item.getCategoryName() != null && !item.getCategoryName().isEmpty()) {
                             categoryRepository.findByName(item.getCategoryName())
                                 .ifPresentOrElse(newProduct::setCategory, () -> {
@@ -248,9 +241,8 @@ public class InventoryServiceImpl implements InventoryService {
                                 });
                         }
 
-                        Long uid = item.getUnitId() != null ? item.getUnitId().longValue() : null;
-                        if (uid != null) {
-                            unitRepository.findById(uid).ifPresent(newProduct::setUnit);
+                        if (item.getUnitId() != null) {
+                            unitRepository.findById(item.getUnitId().longValue()).ifPresent(newProduct::setUnit);
                         } else if (item.getUnitName() != null && !item.getUnitName().isEmpty()) {
                             unitRepository.findByName(item.getUnitName())
                                 .ifPresentOrElse(newProduct::setUnit, () -> {
