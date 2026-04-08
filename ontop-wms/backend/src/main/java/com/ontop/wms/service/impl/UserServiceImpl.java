@@ -49,14 +49,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> getUsersByWarehouse(Integer warehouseId) {
-        return userRepository.findByWarehouses_Id(warehouseId.longValue()).stream()
+        return userRepository.findByWarehouses_Id(warehouseId).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDTO updateUser(Integer userId, UserDTO userDTO) {
-        User user = userRepository.findById(userId.longValue())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setUsername(userDTO.getUsername());
@@ -74,17 +74,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Integer userId) {
-        userRepository.deleteById(userId.longValue());
+        userRepository.deleteById(userId);
     }
 
     @SuppressWarnings("null")
     private UserDTO convertToDto(User user) {
         UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
+        userDTO.setId(user.getId().longValue());
         userDTO.setUsername(user.getUsername());
         userDTO.setEmail(user.getEmail());
         userDTO.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-        userDTO.setWarehouses(user.getWarehouses().stream().map(Warehouse::getCode).collect(Collectors.toSet()));
+        userDTO.setWarehouses(user.getWarehouses().stream().map(warehouse -> warehouse.getId().toString()).collect(Collectors.toSet()));
         return userDTO;
     }
 }

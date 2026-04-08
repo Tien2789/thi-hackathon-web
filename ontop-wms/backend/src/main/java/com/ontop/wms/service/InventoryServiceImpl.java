@@ -68,7 +68,7 @@ public class InventoryServiceImpl implements InventoryService {
             inventoryIn.setCreatedAt(new Timestamp(Instant.now().toEpochMilli()));
             
             if (request.getWarehouseId() != null) {
-                warehouseRepository.findById(request.getWarehouseId().longValue()).ifPresent(inventoryIn::setWarehouse);
+                warehouseRepository.findById(request.getWarehouseId()).ifPresent(inventoryIn::setWarehouse);
             }
             inventoryIn = inventoryInRepository.save(inventoryIn);
 
@@ -77,7 +77,7 @@ public class InventoryServiceImpl implements InventoryService {
                     Product targetProduct;
                     
                     if (item.getProductId() != null) {
-                        targetProduct = productRepository.findById(item.getProductId().longValue())
+                        targetProduct = productRepository.findById(item.getProductId())
                             .orElseThrow(() -> new EntityNotFoundException("Product not found: " + item.getProductId()));
                     } else if (item.getProductName() != null) {
                         Product newProduct = new Product();
@@ -92,7 +92,7 @@ public class InventoryServiceImpl implements InventoryService {
                         newProduct.setCurrentStock(0);
 
                         if (item.getCategoryId() != null) {
-                            categoryRepository.findById(item.getCategoryId().longValue()).ifPresent(newProduct::setCategory);
+                            categoryRepository.findById(item.getCategoryId()).ifPresent(newProduct::setCategory);
                         } else if (item.getCategoryName() != null && !item.getCategoryName().isEmpty()) {
                             categoryRepository.findByName(item.getCategoryName())
                                 .ifPresentOrElse(newProduct::setCategory, () -> {
@@ -103,7 +103,7 @@ public class InventoryServiceImpl implements InventoryService {
                         }
 
                         if (item.getUnitId() != null) {
-                            unitRepository.findById(item.getUnitId().longValue()).ifPresent(newProduct::setUnit);
+                            unitRepository.findById(item.getUnitId()).ifPresent(newProduct::setUnit);
                         } else if (item.getUnitName() != null && !item.getUnitName().isEmpty()) {
                             unitRepository.findByName(item.getUnitName())
                                 .ifPresentOrElse(newProduct::setUnit, () -> {
@@ -137,7 +137,7 @@ public class InventoryServiceImpl implements InventoryService {
                 inventoryInRepository.save(inventoryIn);
                 
                 if (inventoryIn.getId() != null) {
-                    signatureService.initiateSignatures("INBOUND", inventoryIn.getId().intValue(), request.getSignerEmails());
+                    signatureService.initiateSignatures("INBOUND", inventoryIn.getId(), request.getSignerEmails());
                 }
             }
         }
@@ -155,14 +155,14 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public InventoryIn approveInbound(Integer id, ApproveRequest request) {
-        InventoryIn inventoryIn = inventoryInRepository.findById(id.longValue())
+        InventoryIn inventoryIn = inventoryInRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Phiếu nhập không tồn tại với id: " + id));
 
         if (!"PENDING".equals(inventoryIn.getStatus())) {
             throw new IllegalStateException("Chỉ có thể duyệt phiếu nhập ở trạng thái PENDING.");
         }
 
-        Product product = productRepository.findById( request.getProductId() != null ? request.getProductId().longValue() : null)
+        Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Sản phẩm không tồn tại với id: " + request.getProductId()));
 
         InDetail detail = new InDetail();
@@ -207,7 +207,7 @@ public class InventoryServiceImpl implements InventoryService {
             inventoryOut.setCreatedAt(new Timestamp(Instant.now().toEpochMilli()));
             
             if (request.getWarehouseId() != null) {
-                warehouseRepository.findById(request.getWarehouseId().longValue()).ifPresent(inventoryOut::setWarehouse);
+                warehouseRepository.findById(request.getWarehouseId()).ifPresent(inventoryOut::setWarehouse);
             }
             inventoryOut = inventoryOutRepository.save(inventoryOut);
 
@@ -216,7 +216,7 @@ public class InventoryServiceImpl implements InventoryService {
                     Product targetProduct;
                     
                     if (item.getProductId() != null) {
-                        targetProduct = productRepository.findById(item.getProductId().longValue())
+                        targetProduct = productRepository.findById(item.getProductId())
                             .orElseThrow(() -> new EntityNotFoundException("Product not found: " + item.getProductId()));
                     } else if (item.getProductName() != null) {
                         Product newProduct = new Product();
@@ -231,7 +231,7 @@ public class InventoryServiceImpl implements InventoryService {
                         newProduct.setCurrentStock(0);
 
                         if (item.getCategoryId() != null) {
-                            categoryRepository.findById(item.getCategoryId().longValue()).ifPresent(newProduct::setCategory);
+                            categoryRepository.findById(item.getCategoryId()).ifPresent(newProduct::setCategory);
                         } else if (item.getCategoryName() != null && !item.getCategoryName().isEmpty()) {
                             categoryRepository.findByName(item.getCategoryName())
                                 .ifPresentOrElse(newProduct::setCategory, () -> {
@@ -242,7 +242,7 @@ public class InventoryServiceImpl implements InventoryService {
                         }
 
                         if (item.getUnitId() != null) {
-                            unitRepository.findById(item.getUnitId().longValue()).ifPresent(newProduct::setUnit);
+                            unitRepository.findById(item.getUnitId()).ifPresent(newProduct::setUnit);
                         } else if (item.getUnitName() != null && !item.getUnitName().isEmpty()) {
                             unitRepository.findByName(item.getUnitName())
                                 .ifPresentOrElse(newProduct::setUnit, () -> {
@@ -291,7 +291,7 @@ public class InventoryServiceImpl implements InventoryService {
                 inventoryOutRepository.save(inventoryOut);
 
                 if (inventoryOut.getId() != null) {
-                    signatureService.initiateSignatures("OUTBOUND", inventoryOut.getId().intValue(), request.getSignerEmails());
+                    signatureService.initiateSignatures("OUTBOUND", inventoryOut.getId(), request.getSignerEmails());
                 }
             }
         }
@@ -301,14 +301,14 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public InventoryOut approveOutbound(Integer id, ApproveRequest request) {
-        InventoryOut inventoryOut = inventoryOutRepository.findById(id.longValue())
+        InventoryOut inventoryOut = inventoryOutRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Phiếu xuất không tồn tại với id: " + id));
 
         if (!"PENDING".equals(inventoryOut.getStatus())) {
             throw new IllegalStateException("Chỉ có thể duyệt phiếu xuất ở trạng thái PENDING.");
         }
 
-        Product product = productRepository.findById(request.getProductId() != null ? request.getProductId().longValue() : null)
+        Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Sản phẩm không tồn tại với id: " + request.getProductId()));
 
         int quantity = request.getQuantity() != null ? request.getQuantity() : 0;
@@ -353,7 +353,7 @@ public class InventoryServiceImpl implements InventoryService {
         if (id == null) {
              throw new IllegalArgumentException("ID cannot be null");
         }
-        InventoryOut inventoryOut = inventoryOutRepository.findById(id.longValue())
+        InventoryOut inventoryOut = inventoryOutRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Outbound not found with id: " + id));
 
         if (!"APPROVED".equals(inventoryOut.getStatus())) {
@@ -380,7 +380,7 @@ public class InventoryServiceImpl implements InventoryService {
     
     @Override
     public void undoInbound(Integer id) {
-        InventoryIn inventoryIn = inventoryInRepository.findById(id.longValue())
+        InventoryIn inventoryIn = inventoryInRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Inbound not found with id: " + id));
 
         if (!"APPROVED".equals(inventoryIn.getStatus())) {
