@@ -11,4 +11,5 @@ import com.ontop.wms.entity.OutDetail;
 @Repository
 public interface OutDetailRepository extends JpaRepository<OutDetail, Integer> {
     List<OutDetail> findAllByInventoryOut(InventoryOut inventoryOut);
+    List<OutDetail> findByInventoryOut(InventoryOut inventoryOut);
 }

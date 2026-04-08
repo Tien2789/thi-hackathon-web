@@ -9,11 +9,11 @@ public interface AssetService {
 
     List<Asset> getAllAssets();
 
-    Asset getAssetById(Long id);
+    Asset getAssetById(Integer id);
 
     Asset createAsset(Asset asset);
 
-    Asset updateAsset(Long id, Asset assetDetails);
+    Asset updateAsset(Integer id, Asset assetDetails);
 
-    void deleteAsset(Long id);
+    void deleteAsset(Integer id);
 }

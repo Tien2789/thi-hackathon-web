@@ -30,6 +30,7 @@
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/service/AuthService.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/security/JwtAuthenticationFilter.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/controller/AssetController.java
+/home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/config/ApplicationConfig.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/controller/UserController.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/dto/AssetDTO.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/entity/Role.java

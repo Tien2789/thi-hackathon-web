@@ -13,6 +13,7 @@ public interface InventoryService {
     List<InboundDTO> getAllInbounds();
     InventoryIn createInbound(InventoryRequest request);
     InventoryIn approveInbound(Integer id, ApproveRequest request);
+    void undoInbound(Integer id);
     List<OutboundDTO> getAllOutbounds();
     InventoryOut createOutbound(InventoryRequest request);
     InventoryOut approveOutbound(Integer id, ApproveRequest request);

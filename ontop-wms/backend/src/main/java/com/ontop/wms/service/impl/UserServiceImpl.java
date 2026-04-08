@@ -55,8 +55,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(Long userId, UserDTO userDTO) {
-        User user = userRepository.findById(userId)
+    public UserDTO updateUser(Integer userId, UserDTO userDTO) {
+        User user = userRepository.findById(userId.longValue())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setUsername(userDTO.getUsername());
@@ -73,8 +73,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
+    public void deleteUser(Integer userId) {
+        userRepository.deleteById(userId.longValue());
     }
 
     @SuppressWarnings("null")

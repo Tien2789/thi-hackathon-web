@@ -21,7 +21,7 @@ public class AssetController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Asset> getAssetById(@PathVariable Long id) {
+    public ResponseEntity<Asset> getAssetById(@PathVariable Integer id) {
         Asset asset = assetService.getAssetById(id);
         return ResponseEntity.ok(asset);
     }
@@ -32,13 +32,13 @@ public class AssetController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Asset> updateAsset(@PathVariable Long id, @RequestBody Asset assetDetails) {
+    public ResponseEntity<Asset> updateAsset(@PathVariable Integer id, @RequestBody Asset assetDetails) {
         Asset updatedAsset = assetService.updateAsset(id, assetDetails);
         return ResponseEntity.ok(updatedAsset);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAsset(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAsset(@PathVariable Integer id) {
         assetService.deleteAsset(id);
         return ResponseEntity.noContent().build();
     }

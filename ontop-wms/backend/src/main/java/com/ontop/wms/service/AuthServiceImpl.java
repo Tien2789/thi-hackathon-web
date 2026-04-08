@@ -29,23 +29,19 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
-        // The User entity itself can be used as UserDetails if it implements the interface
-        // For this example, let's adapt it to ensure compatibility
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
             .username(user.getUsername())
-            .password(user.getPassword()) // Password must be present, even if not used directly for token
+            .password(user.getPassword()) 
             .authorities(user.getRoles().stream()
-                .map(role -> role.getName()) // Use the role name directly
+                .map(role -> role.getName())
                 .toArray(String[]::new))
             .build();
 
         String token = jwtTokenUtil.generateToken(userDetails);
 
-        // For simplicity, returning the first role and warehouse. 
-        // A more complex app might return all roles/warehouses or a primary one.
         String roleName = user.getRoles().stream().findFirst().map(role -> role.getName()).orElse(null);
         Warehouse firstWarehouse = user.getWarehouses().stream().findFirst().orElse(null);
-        Integer warehouseId = firstWarehouse != null ? firstWarehouse.getId() : null;
+        Long warehouseId = firstWarehouse != null ? firstWarehouse.getId() : null;
         String warehouseName = firstWarehouse != null ? firstWarehouse.getName() : null;
 
         return new AuthResponse(

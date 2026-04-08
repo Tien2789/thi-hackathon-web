@@ -9,6 +9,6 @@ public interface UserService {
     List<UserDTO> getAllUsers();
     UserDTO createUser(CreateUserRequest request);
     List<UserDTO> getUsersByWarehouse(Integer warehouseId);
-    UserDTO updateUser(Long userId, UserDTO userDTO);
-    void deleteUser(Long userId);
+    UserDTO updateUser(Integer userId, UserDTO userDTO);
+    void deleteUser(Integer userId);
 }

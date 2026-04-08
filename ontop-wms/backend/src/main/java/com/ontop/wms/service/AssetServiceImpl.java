@@ -23,7 +23,7 @@ public class AssetServiceImpl implements AssetService {
     @Override
     public Double calculateDepreciation(Integer id) {
         // Assuming a simple straight-line depreciation for 5 years (60 months)
-        Asset asset = getAssetById(id.longValue());
+        Asset asset = getAssetById(id);
         if (asset == null || asset.getCreatedAt() == null) {
             return 0.0;
         }
@@ -42,15 +42,15 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Asset getAssetById(Long id) {
-        return assetRepository.findById(id).orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
+    public Asset getAssetById(Integer id) {
+        return assetRepository.findById(id.longValue()).orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
     }
 
     @Override
     public Asset createAsset(Asset asset) {
         // Make sure to set the warehouse correctly if its ID is provided
         if (asset.getWarehouse() != null && asset.getWarehouse().getId() != null) {
-            Warehouse warehouse = warehouseRepository.findById(asset.getWarehouse().getId())
+            Warehouse warehouse = warehouseRepository.findById(asset.getWarehouse().getId().longValue())
                     .orElseThrow(() -> new RuntimeException("Warehouse not found"));
             asset.setWarehouse(warehouse);
         }
@@ -58,7 +58,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Asset updateAsset(Long id, Asset assetDetails) {
+    public Asset updateAsset(Integer id, Asset assetDetails) {
         Asset asset = getAssetById(id);
 
         asset.setAssetCode(assetDetails.getAssetCode());
@@ -67,7 +67,7 @@ public class AssetServiceImpl implements AssetService {
         asset.setQuantity(assetDetails.getQuantity());
 
         if (assetDetails.getWarehouse() != null && assetDetails.getWarehouse().getId() != null) {
-            Warehouse warehouse = warehouseRepository.findById(assetDetails.getWarehouse().getId())
+            Warehouse warehouse = warehouseRepository.findById(assetDetails.getWarehouse().getId().longValue())
                     .orElseThrow(() -> new RuntimeException("Warehouse not found"));
             asset.setWarehouse(warehouse);
         }
@@ -76,7 +76,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public void deleteAsset(Long id) {
+    public void deleteAsset(Integer id) {
         Asset asset = getAssetById(id);
         assetRepository.delete(asset);
     }

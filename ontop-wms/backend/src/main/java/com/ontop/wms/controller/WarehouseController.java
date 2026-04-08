@@ -55,7 +55,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Warehouse> updateWarehouse(@PathVariable Integer id, @RequestBody Warehouse warehouseDetails) {
+    public ResponseEntity<Warehouse> updateWarehouse(@PathVariable Long id, @RequestBody Warehouse warehouseDetails) {
         if (id == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -70,7 +70,7 @@ public class WarehouseController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWarehouse(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteWarehouse(@PathVariable Long id) {
         if (id != null) {
             warehouseRepository.deleteById(id);
         }
@@ -78,7 +78,7 @@ public class WarehouseController {
     }
 
     @GetMapping("/{id}/bin-stock")
-    public ResponseEntity<List<Product>> getBinStock(@PathVariable Integer id) {
+    public ResponseEntity<List<Product>> getBinStock(@PathVariable Long id) {
         // Return placeholder or implement real logic
         return ResponseEntity.ok(List.of());
     }
