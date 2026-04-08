@@ -17,5 +17,6 @@ public interface InDetailRepository extends JpaRepository<InDetail, Integer> {
 
     List<InDetail> findByInventoryInOrderByInventoryIn_CreatedAtAsc(InventoryIn inventoryIn);
 
+    @Query("SELECT d FROM InDetail d WHERE d.inventoryIn = :inventoryIn")
     List<InDetail> findByInventoryIn(InventoryIn inventoryIn);
 }
