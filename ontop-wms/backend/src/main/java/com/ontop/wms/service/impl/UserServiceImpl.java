@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> getUsersByWarehouse(Integer warehouseId) {
-        return userRepository.findByWarehouses_Id(warehouseId).stream()
+        return userRepository.findByWarehouses_Id(warehouseId.longValue()).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
