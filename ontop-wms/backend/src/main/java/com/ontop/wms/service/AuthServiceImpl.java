@@ -41,14 +41,14 @@ public class AuthServiceImpl implements AuthService {
 
         String roleName = user.getRoles().stream().findFirst().map(role -> role.getName()).orElse(null);
         Warehouse firstWarehouse = user.getWarehouses().stream().findFirst().orElse(null);
-        Long warehouseId = firstWarehouse != null ? firstWarehouse.getId() : null;
+        Integer warehouseId = firstWarehouse != null ? firstWarehouse.getId() : null;
         String warehouseName = firstWarehouse != null ? firstWarehouse.getName() : null;
 
         return new AuthResponse(
                 token,
                 user.getUsername(),
                 roleName,
-                warehouseId,
+                warehouseId.longValue(),
                 warehouseName
         );
     }
