@@ -5,6 +5,7 @@
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/repository/UnitRepository.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/entity/Category.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/config/GlobalExceptionHandler.java
+/home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/service/impl/JwtServiceImpl.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/config/SecurityConfig.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/controller/CategoryController.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/dto/LoginRequest.java
@@ -17,7 +18,6 @@
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/service/AlertService.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/entity/Supplier.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/security/JwtTokenUtil.java
-/home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/service/UserDetailsServiceImpl.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/dto/ApproveRequest.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/dto/OutboundDTO.java
 /home/user/thi-hackathon-web/ontop-wms/backend/src/main/java/com/ontop/wms/repository/DataInitializer.java
