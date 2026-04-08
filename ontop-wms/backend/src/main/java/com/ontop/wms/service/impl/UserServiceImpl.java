@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
         userDTO.setUsername(user.getUsername());
         userDTO.setEmail(user.getEmail());
         userDTO.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-        userDTO.setWarehouses(user.getWarehouses().stream().map(warehouse -> warehouse.getId().toString()).collect(Collectors.toSet()));
+        userDTO.setWarehouses(user.getWarehouses().stream().map(Warehouse::getCode).collect(Collectors.toSet()));
         return userDTO;
     }
 }
