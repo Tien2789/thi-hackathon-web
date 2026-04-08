@@ -15,6 +15,7 @@ public interface InDetailRepository extends JpaRepository<InDetail, Integer> {
     @Query("SELECT d FROM InDetail d WHERE d.product = :product AND d.remainingQuantity > 0 ORDER BY d.inventoryIn.createdAt ASC")
     List<InDetail> findAvailableStockForFIFO(Product product);
 
+    @Query("SELECT d FROM InDetail d WHERE d.inventoryIn = :inventoryIn ORDER BY d.inventoryIn.createdAt ASC")
     List<InDetail> findByInventoryInOrderByInventoryIn_CreatedAtAsc(InventoryIn inventoryIn);
 
     @Query("SELECT d FROM InDetail d WHERE d.inventoryIn = :inventoryIn")
