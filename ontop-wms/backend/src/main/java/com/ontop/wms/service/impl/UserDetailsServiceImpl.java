@@ -1,4 +1,3 @@
-
 package com.ontop.wms.service.impl;
 
 import com.ontop.wms.repository.UserRepository;
@@ -18,6 +17,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // The 'username' parameter here is actually the email from the login form
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
     }

@@ -7,7 +7,7 @@ import api from '../api'
 
 const router = useRouter()
 const loginForm = ref({
-  username: '',
+  email: '',
   password: '',
   remember: false
 })
@@ -15,15 +15,15 @@ const showPassword = ref(false)
 const loading = ref(false)
 
 const handleLogin = async () => {
-  if (!loginForm.value.username || !loginForm.value.password) {
-    ElMessage.warning('Vui lòng nhập tài khoản và mật khẩu')
+  if (!loginForm.value.email || !loginForm.value.password) {
+    ElMessage.warning('Vui lòng nhập email và mật khẩu')
     return
   }
 
   try {
     loading.value = true
     const response = await api.post('/auth/login', {
-      username: loginForm.value.username,
+      email: loginForm.value.email,
       password: loginForm.value.password
     }, {
       headers: {
@@ -102,8 +102,8 @@ const handleLogin = async () => {
 
                     <form @submit.prevent="handleLogin" class="d-grid gap-4">
                         <div class="field-wrapper">
-                            <label class="ultra-tiny fw-bold text-muted text-uppercase mb-2 tracking-wider ps-1">Tài khoản người dùng</label>
-                            <el-input v-model="loginForm.username" placeholder="Sử dụng tên đăng nhập hoặc email" :prefix-icon="User" class="auth-input-pill" />
+                            <label class="ultra-tiny fw-bold text-muted text-uppercase mb-2 tracking-wider ps-1">Địa chỉ Email</label>
+                            <el-input v-model="loginForm.email" placeholder="Nhập địa chỉ email của bạn" :prefix-icon="User" class="auth-input-pill" />
                         </div>
 
                         <div class="field-wrapper">
