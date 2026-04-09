@@ -14,13 +14,14 @@ const dialogVisible = ref(false)
 const products = ref([])
 const categories = ref([])
 const units = ref([])
+const warehouses = ref([])
 
 // Form state
 const form = ref({
     voucherCode: '',
     receiveDate: new Date().toISOString().split('T')[0],
     deliverer: '',
-    warehouseName: '',
+    warehouseId: null,
     details: []
 })
 
@@ -36,13 +37,15 @@ const newDetail = ref({
     unitName: '',
     quantity: 1,
     unitPrice: 0,
+    manufacturingDate: '',
+    expiryDate: '',
     remark: ''
 })
 
 const fetchVouchers = async () => {
     try {
         loading.value = true
-        const response = await api.get('/inventory/inbound')
+        const response = await api.get('/inventory/inbounds')
         vouchers.value = response.data
     } catch (error) {
         ElMessage.error('Không thể tải danh sách phiếu nhập')
@@ -53,14 +56,16 @@ const fetchVouchers = async () => {
 
 const fetchMetadata = async () => {
     try {
-        const [prodRes, catRes, unitRes] = await Promise.all([
+        const [prodRes, catRes, unitRes, whRes] = await Promise.all([
             api.get('/products'), 
             api.get('/categories'), 
-            api.get('/units')
+            api.get('/units'),
+            api.get('/warehouses')
         ])
         products.value = prodRes.data
         categories.value = catRes.data
         units.value = unitRes.data
+        warehouses.value = whRes.data
     } catch (error) {
         console.error('Lỗi tải metadata:', error)
     }
@@ -87,7 +92,7 @@ const addDetail = () => {
     newDetail.value = {
         productId: null, productName: '', skuCode: '', barcode: '',
         categoryId: null, categoryName: '', unitId: null, unitName: '',
-        quantity: 1, unitPrice: 0, remark: ''
+        quantity: 1, unitPrice: 0, manufacturingDate: '', expiryDate: '', remark: ''
     }
 }
 
@@ -97,7 +102,7 @@ const handleCreate = async () => {
         return
     }
     try {
-        await api.post('/inventory/inbound', form.value)
+        await api.post('/inventory/inbounds', form.value)
         ElMessage.success('Đã lập phiếu nhập kho thành công')
         dialogVisible.value = false
         fetchVouchers()
@@ -190,17 +195,24 @@ onMounted(() => {
         <el-dialog v-model="dialogVisible" title="Lập Phiếu Nhập Kho Thông Minh" width="900px" align-center class="premium-dialog rounded-4">
             <el-form :model="form" label-position="top" class="premium-form p-3">
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <el-form-item label="Mã phiếu nhập">
                             <el-input v-model="form.voucherCode" placeholder="Tự động" />
                         </el-form-item>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <el-form-item label="Kho nhận hàng">
+                            <el-select v-model="form.warehouseId" placeholder="Chọn kho" class="w-100" clearable filterable>
+                                <el-option v-for="w in warehouses" :key="w.id" :label="w.name" :value="w.id" />
+                            </el-select>
+                        </el-form-item>
+                    </div>
+                    <div class="col-md-3">
                         <el-form-item label="Ngày nhập">
                             <el-date-picker v-model="form.receiveDate" type="date" value-format="YYYY-MM-DD" class="w-100" />
                         </el-form-item>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <el-form-item label="Người giao hàng">
                             <el-input v-model="form.deliverer" placeholder="Họ và tên" />
                         </el-form-item>
@@ -211,48 +223,58 @@ onMounted(() => {
                     <h6 class="fw-bold text-dark mb-3"><el-icon class="me-2 text-primary"><Box /></el-icon>Khai báo hàng hóa nhập mới</h6>
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <el-form-item label="Chọn sản phẩm hiện có (hoặc nhập tên mới)">
+                            <el-form-item label="Sản phẩm (chọn/thêm mới)">
                                 <el-select v-model="newDetail.productName" filterable allow-create placeholder="Chọn hoặc nhập tên" class="w-100">
                                     <el-option v-for="p in products" :key="p.id" :label="p.productName" :value="p.productName" />
                                 </el-select>
                             </el-form-item>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <el-form-item label="Mã SKU">
-                                <el-input v-model="newDetail.skuCode" placeholder="Auto-generate" class="skubox">
+                                <el-input v-model="newDetail.skuCode" placeholder="Tự sinh" class="skubox">
                                     <template #append>
                                         <el-button @click="generateSku"><el-icon><MagicStick /></el-icon></el-button>
                                     </template>
                                 </el-input>
                             </el-form-item>
                         </div>
+                        <div class="col-md-3">
+                             <el-form-item label="Danh mục">
+                                <el-select v-model="newDetail.categoryName" filterable allow-create placeholder="Chọn/Thêm" class="w-100">
+                                    <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.name" />
+                                </el-select>
+                             </el-form-item>
+                        </div>
+                        <div class="col-md-2">
+                             <el-form-item label="Đơn vị">
+                                <el-select v-model="newDetail.unitName" filterable allow-create placeholder="ĐVT" class="w-100">
+                                    <el-option v-for="u in units" :key="u.id" :label="u.name" :value="u.name" />
+                                </el-select>
+                             </el-form-item>
+                        </div>
+                        
                         <div class="col-md-2">
                             <el-form-item label="Số lượng">
                                 <el-input-number v-model="newDetail.quantity" :min="1" class="w-100" />
                             </el-form-item>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end p-2">
-                             <el-button type="primary" class="w-100 rounded-pill shadow-sm" :icon="Plus" @click="addDetail">Thêm</el-button>
-                        </div>
-                        
                         <div class="col-md-3">
-                             <el-form-item label="Danh mục">
-                                <el-select v-model="newDetail.categoryName" filterable allow-create placeholder="Chọn/Thêm loại" class="w-100">
-                                    <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.name" />
-                                </el-select>
-                             </el-form-item>
+                            <el-form-item label="Đơn giá (VNĐ)">
+                                <el-input-number v-model="newDetail.unitPrice" :min="0" :step="1000" class="w-100" />
+                            </el-form-item>
                         </div>
                         <div class="col-md-3">
-                             <el-form-item label="Đơn vị">
-                                <el-select v-model="newDetail.unitName" filterable allow-create placeholder="Chọn/Thêm ĐVT" class="w-100">
-                                    <el-option v-for="u in units" :key="u.id" :label="u.name" :value="u.name" />
-                                </el-select>
-                             </el-form-item>
+                            <el-form-item label="Ngày sản xuất">
+                                <el-date-picker v-model="newDetail.manufacturingDate" type="date" placeholder="NSX" value-format="YYYY-MM-DD" class="w-100" />
+                            </el-form-item>
                         </div>
-                        <div class="col-md-6">
-                             <el-form-item label="Ghi chú (Tùy chọn)">
-                                <el-input v-model="newDetail.remark" placeholder="Lý do nhập, tình trạng..." />
-                             </el-form-item>
+                        <div class="col-md-3">
+                            <el-form-item label="Hạn tồn kho">
+                                <el-date-picker v-model="newDetail.expiryDate" type="date" placeholder="HSD" value-format="YYYY-MM-DD" class="w-100" />
+                            </el-form-item>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end pb-3">
+                             <el-button type="primary" class="w-100 rounded-pill shadow-sm" @click="addDetail"><el-icon><Plus /></el-icon></el-button>
                         </div>
                     </div>
                 </div>
@@ -261,11 +283,12 @@ onMounted(() => {
                 <div v-if="form.details.length > 0" class="preview-list p-2">
                     <p class="text-muted tiny fw-bold mb-2">DANH SÁCH CHỜ NHẬP KHO ({{ form.details.length }})</p>
                     <el-table :data="form.details" stripe class="premium-table rounded-3 overflow-hidden border">
-                        <el-table-column prop="productName" label="Sản phẩm" width="200" />
-                        <el-table-column prop="skuCode" label="SKU" width="150" />
-                        <el-table-column prop="quantity" label="SL" width="80" align="center" />
-                        <el-table-column prop="categoryName" label="Danh mục" />
-                        <el-table-column label="Action" width="80" align="center">
+                        <el-table-column prop="productName" label="Sản phẩm" width="180" />
+                        <el-table-column prop="skuCode" label="SKU" width="120" />
+                        <el-table-column prop="quantity" label="SL" width="60" align="center" />
+                        <el-table-column prop="unitPrice" label="Đơn giá" width="100" />
+                        <el-table-column prop="expiryDate" label="HSD" width="100" />
+                        <el-table-column label="Hành động" width="80" align="center">
                             <template #default="scope">
                                 <el-button type="danger" link :icon="Delete" @click="form.details.splice(scope.$index, 1)" />
                             </template>
