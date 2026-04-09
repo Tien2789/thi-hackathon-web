@@ -12,7 +12,7 @@ public class InventoryRequest {
     private String receiptCode; // for inbound
     private String issueCode;   // for outbound
     private String status;
-    private Long warehouseId; // Changed to Long
+    private Integer warehouseId; // Changed to Integer
     
     // Circular 200 Fields
     private String delivererName;

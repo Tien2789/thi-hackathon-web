@@ -31,20 +31,21 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        // 2. Seed Default Admin
-        if (userRepository.findByUsername("admin").isEmpty()) {
-            Role adminRole = roleRepository.findByName("ADMIN")
-                    .orElseThrow(() -> new RuntimeException("ADMIN role not found after seeding"));
-            
-            User admin = new User();
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin123"));
-            Set<Role> roles = new HashSet<>();
-            roles.add(adminRole);
-            admin.setRoles(roles);
-            userRepository.save(admin);
-            
-            System.out.println(">>> Seeded default admin user: admin / admin123");
-        }
+        // 2. Seed or Update Default Admin
+        User admin = userRepository.findByUsername("admin").orElse(new User());
+        
+        Role adminRole = roleRepository.findByName("ADMIN")
+                .orElseThrow(() -> new RuntimeException("ADMIN role not found after seeding"));
+        
+        admin.setUsername("admin");
+        admin.setEmail("admin@ontop.com");
+        admin.setPassword(passwordEncoder.encode("admin123"));
+        
+        Set<Role> roles = new HashSet<>();
+        roles.add(adminRole);
+        admin.setRoles(roles);
+        
+        userRepository.save(admin);
+        System.out.println(">>> Seeded/Updated default admin user: admin / admin123");
     }
 }

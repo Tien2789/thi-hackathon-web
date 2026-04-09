@@ -1,7 +1,7 @@
 package com.ontop.wms.service;
 
-import com.ontop.wms.model.Warehouse;
-import com.ontop.wms.repositoty.WarehouseRepository;
+import com.ontop.wms.entity.Warehouse;
+import com.ontop.wms.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

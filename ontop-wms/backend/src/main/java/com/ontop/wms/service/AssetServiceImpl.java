@@ -43,14 +43,14 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public Asset getAssetById(Integer id) {
-        return assetRepository.findById(id.longValue()).orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
+        return assetRepository.findById(id).orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
     }
 
     @Override
     public Asset createAsset(Asset asset) {
         // Make sure to set the warehouse correctly if its ID is provided
         if (asset.getWarehouse() != null && asset.getWarehouse().getId() != null) {
-            Warehouse warehouse = warehouseRepository.findById(asset.getWarehouse().getId().longValue())
+            Warehouse warehouse = warehouseRepository.findById(asset.getWarehouse().getId())
                     .orElseThrow(() -> new RuntimeException("Warehouse not found"));
             asset.setWarehouse(warehouse);
         }
@@ -67,7 +67,7 @@ public class AssetServiceImpl implements AssetService {
         asset.setQuantity(assetDetails.getQuantity());
 
         if (assetDetails.getWarehouse() != null && assetDetails.getWarehouse().getId() != null) {
-            Warehouse warehouse = warehouseRepository.findById(assetDetails.getWarehouse().getId().longValue())
+            Warehouse warehouse = warehouseRepository.findById(assetDetails.getWarehouse().getId())
                     .orElseThrow(() -> new RuntimeException("Warehouse not found"));
             asset.setWarehouse(warehouse);
         }

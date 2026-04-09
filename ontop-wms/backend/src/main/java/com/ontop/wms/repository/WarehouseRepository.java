@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.ontop.wms.entity.Warehouse;
 
-public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
+@org.springframework.stereotype.Repository
+public interface WarehouseRepository extends JpaRepository<Warehouse, Integer> {
     Optional<Warehouse> findByCode(String code);
 }

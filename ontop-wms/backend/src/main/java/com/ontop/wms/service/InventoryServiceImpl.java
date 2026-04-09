@@ -145,11 +145,12 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     private String generateSku(String productName) {
-        String prefix = "SKU";
-        if (productName != null && productName.length() >= 3) {
-            prefix = productName.substring(0, 3).toUpperCase();
+        if (productName == null || productName.isEmpty()) {
+            return "ITEM-" + System.currentTimeMillis() % 1000000;
         }
-        return prefix + "-" + System.currentTimeMillis() % 1000000;
+        // Normalize name: uppercase and replace non-alphanumeric with underscores
+        String normalized = productName.trim().toUpperCase().replaceAll("[^A-Z0-9 ]", "").replace(" ", "_");
+        return normalized + "-" + System.currentTimeMillis() % 1000000;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.ontop.wms.controller;
 
-import com.ontop.wms.model.Warehouse;
+import com.ontop.wms.entity.Warehouse;
 import com.ontop.wms.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
