@@ -29,6 +29,9 @@ public class Signature {
     @Column(name = "signer_role", nullable = false)
     private String signerRole; // KEEPER, ACCOUNTANT, DIRECTOR, PERSON
 
+    @Column(name = "role")
+    private String legacyRole = "SYSTEM"; // Fallback for obsolete NOT NULL db column
+
     @Column(name = "signer_email")
     private String signerEmail;
 
