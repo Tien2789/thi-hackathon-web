@@ -15,6 +15,6 @@ public class UserDTO {
     private Long id;
     private String username;
     private String email;
-    private Set<String> roles;
-    private Set<String> warehouses;
+    private String role;
+    private String warehouse;
 }

@@ -41,9 +41,7 @@ public class DataInitializer implements CommandLineRunner {
         admin.setEmail("admin@ontop.com");
         admin.setPassword(passwordEncoder.encode("admin123"));
         
-        Set<Role> roles = new HashSet<>();
-        roles.add(adminRole);
-        admin.setRoles(roles);
+        admin.setRole(adminRole);
         
         userRepository.save(admin);
         System.out.println(">>> Seeded/Updated default admin user: admin / admin123");

@@ -23,11 +23,9 @@ public class OutDetail {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "outbound_id")
     private InventoryOut inventoryOut;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
     private Product product;
 
     @Column(name = "requested_quantity")

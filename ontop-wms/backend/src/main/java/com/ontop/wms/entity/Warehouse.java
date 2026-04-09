@@ -30,6 +30,6 @@ public class Warehouse {
     @Column(nullable = false)
     private String address;
 
-    @ManyToMany(mappedBy = "warehouses", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 }

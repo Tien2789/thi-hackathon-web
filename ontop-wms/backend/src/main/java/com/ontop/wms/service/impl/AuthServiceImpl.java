@@ -44,11 +44,11 @@ public class AuthServiceImpl implements AuthService {
 
         String jwt = jwtService.generateToken(user);
 
-        String roleName = user.getRoles().stream().map(Role::getName).findFirst().orElse(null);
+        String roleName = user.getRole() != null ? user.getRole().getName() : null;
 
-        Optional<Warehouse> warehouseOptional = user.getWarehouses().stream().findFirst();
-        Long warehouseId = warehouseOptional.map(warehouse -> Long.valueOf(warehouse.getId())).orElse(null);
-        String warehouseName = warehouseOptional.map(Warehouse::getName).orElse(null);
+        Warehouse warehouse = user.getWarehouse();
+        Long warehouseId = warehouse != null ? Long.valueOf(warehouse.getId()) : null;
+        String warehouseName = warehouse != null ? warehouse.getName() : null;
 
         return new AuthResponse(jwt, user.getUsername(), roleName, warehouseId, warehouseName);
     }

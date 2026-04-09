@@ -11,5 +11,5 @@ public class CreateUserRequest {
     private String name;
     private String email;
     private String role;
-    private Set<String> warehouses;
+    private String warehouse;
 }

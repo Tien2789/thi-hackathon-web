@@ -42,19 +42,15 @@ public class Product {
     private String productName;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
     private Category category;
 
     @ManyToOne
-    @JoinColumn(name = "unit_id")
     private Unit unit;
 
     @ManyToOne
-    @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 
     @ManyToOne
-    @JoinColumn(name = "bin_location_id")
     private BinLocation binLocation;
 
     @Column(name = "current_stock")

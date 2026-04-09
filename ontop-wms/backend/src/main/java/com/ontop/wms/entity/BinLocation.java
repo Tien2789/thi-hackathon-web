@@ -21,7 +21,6 @@ public class BinLocation {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
 
     @Column(unique = true, nullable = false)

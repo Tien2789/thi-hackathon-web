@@ -24,11 +24,9 @@ public class InDetail {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "inbound_id")
     private InventoryIn inventoryIn;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
     private Product product;
 
     @Column

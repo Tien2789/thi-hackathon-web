@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
         Role role = roleRepository.findByName(request.getRole())
                 .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRole()));
-        user.setRoles(Collections.singleton(role));
+        user.setRole(role);
 
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> getUsersByWarehouse(Integer warehouseId) {
-        return userRepository.findByWarehouses_Id(warehouseId).stream()
+        return userRepository.findByWarehouse_Id(warehouseId).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -62,11 +62,14 @@ public class UserServiceImpl implements UserService {
         user.setUsername(userDTO.getUsername());
         user.setEmail(userDTO.getEmail());
 
-        Set<Role> roles = userDTO.getRoles().stream()
-                .map(roleName -> roleRepository.findByName(roleName)
-                        .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
-                .collect(Collectors.toSet());
-        user.setRoles(roles);
+        String roleName = userDTO.getRole();
+        if (roleName != null && !roleName.isEmpty()) {
+            Role role = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+            user.setRole(role);
+        } else {
+            user.setRole(null);
+        }
 
         User updatedUser = userRepository.save(user);
         return convertToDto(updatedUser);
@@ -83,8 +86,8 @@ public class UserServiceImpl implements UserService {
         userDTO.setId(user.getId().longValue());
         userDTO.setUsername(user.getUsername());
         userDTO.setEmail(user.getEmail());
-        userDTO.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-        userDTO.setWarehouses(user.getWarehouses().stream().map(Warehouse::getCode).collect(Collectors.toSet()));
+        userDTO.setRole(user.getRole() != null ? user.getRole().getName() : null);
+        userDTO.setWarehouse(user.getWarehouse() != null ? user.getWarehouse().getCode() : null);
         return userDTO;
     }
 }

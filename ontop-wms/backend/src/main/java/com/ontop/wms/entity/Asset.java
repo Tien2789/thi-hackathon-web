@@ -30,7 +30,7 @@ public class Asset {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "warehouse_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Warehouse warehouse;
 
     @Column(nullable = false)

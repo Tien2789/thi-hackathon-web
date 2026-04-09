@@ -27,7 +27,6 @@ public class Notification {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "type")

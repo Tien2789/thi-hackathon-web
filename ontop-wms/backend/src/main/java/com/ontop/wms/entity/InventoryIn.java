@@ -46,7 +46,6 @@ public class InventoryIn {
     private User approvedBy;
 
     @ManyToOne
-    @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
 
     @CreationTimestamp
