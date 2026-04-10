@@ -7,14 +7,13 @@ import com.ontop.wms.entity.User;
 import com.ontop.wms.entity.Warehouse;
 import com.ontop.wms.repository.RoleRepository;
 import com.ontop.wms.repository.UserRepository;
+import com.ontop.wms.repository.WarehouseRepository;
 import com.ontop.wms.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +25,8 @@ public class UserServiceImpl implements UserService {
     private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private WarehouseRepository warehouseRepository;
 
     @Override
     public UserDTO createUser(CreateUserRequest request) {
@@ -38,6 +39,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRole()));
         user.setRole(role);
 
+        // Assign warehouse if provided
+        if (request.getWarehouse() != null && !request.getWarehouse().isEmpty()) {
+            Warehouse warehouse = warehouseRepository.findByCode(request.getWarehouse())
+                    .orElseThrow(() -> new RuntimeException("Warehouse not found: " + request.getWarehouse()));
+            user.setWarehouse(warehouse);
+        }
+
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
     }
@@ -45,6 +53,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDTO getUserById(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found: " + id));
+        return convertToDto(user);
     }
 
     @Override
@@ -69,6 +84,16 @@ public class UserServiceImpl implements UserService {
             user.setRole(role);
         } else {
             user.setRole(null);
+        }
+
+        // Update warehouse assignment
+        String warehouseCode = userDTO.getWarehouse();
+        if (warehouseCode != null && !warehouseCode.isEmpty()) {
+            Warehouse warehouse = warehouseRepository.findByCode(warehouseCode)
+                    .orElseThrow(() -> new RuntimeException("Warehouse not found: " + warehouseCode));
+            user.setWarehouse(warehouse);
+        } else {
+            user.setWarehouse(null);
         }
 
         User updatedUser = userRepository.save(user);

@@ -16,4 +16,25 @@ public class WarehouseService {
     public List<Warehouse> getAllWarehouses() {
         return warehouseRepository.findAll();
     }
+
+    public Warehouse getById(Integer id) {
+        return warehouseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Warehouse not found: " + id));
+    }
+
+    public Warehouse create(Warehouse warehouse) {
+        return warehouseRepository.save(warehouse);
+    }
+
+    public Warehouse update(Integer id, Warehouse data) {
+        Warehouse warehouse = getById(id);
+        warehouse.setName(data.getName());
+        warehouse.setCode(data.getCode());
+        warehouse.setAddress(data.getAddress());
+        return warehouseRepository.save(warehouse);
+    }
+
+    public void delete(Integer id) {
+        warehouseRepository.deleteById(id);
+    }
 }
